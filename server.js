@@ -1,6 +1,6 @@
 var express = require('express'),
     app = express(),
-    port = 8080,
+    port = 8070,
     mongoose = require('mongoose'),
     passport = require('passport'),
     flash = require('connect-flash'),
@@ -15,7 +15,7 @@ mongoose.connect(configDB.url);
 require('./config/passport')(passport);
 app.use('/', express.static(path.join(__dirname, 'views')));
 
-/*
+
 var ProCon = require('./app/models/procon.js');
 procon = new ProCon();
 procon.topic = 'beast';
@@ -42,7 +42,7 @@ procon.save(function(err) {
     throw err;
   }
 });
-*/
+
 
 // set up express
 app.use(morgan('dev'));     // log every request to the console
