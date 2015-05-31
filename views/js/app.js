@@ -4,19 +4,23 @@
  *
  */
 
+var MyApp = MyApp || {};
+
+
 var proconModel = (function($) {
   // Load procon data from server
   var proconData = {},
+  		topic = "beast",
       dataReady = false;
 
   function fetchData() {
     $.ajax({
-      url: "/all_procons"
+      url: "/all_procons/"+topic
     })
     .done(function(data) {
       dataReady = true;
       proconData = data;
-
+	  console.log(proconData);
     });
   }
 
@@ -43,25 +47,24 @@ var proconModel = (function($) {
   }
 
   function addProCon() {
-    proconData[0].pro.unshift(createEmptyClaim());
-    proconData[0].con.unshift(createEmptyClaim());
+    proconData.pro.unshift(createEmptyClaim());
+    proconData.con.unshift(createEmptyClaim());
+    updateServerProCon();
   }
 
   function addSupport(side, claimIdx) {
-    proconData[0][side][claimIdx].support.unshift(createEmptySupport());
-//     proconData[0].con[claimIdx].support.unshift(createEmptySupport());
-    console.log(proconData);
+    proconData[side][claimIdx].support.unshift(createEmptySupport());
   }
 
   function deleteProConAtIndex(idx) {
-    proconData[0].pro.splice(idx, 1);
-    proconData[0].con.splice(idx, 1);
+    proconData.pro.splice(idx, 1);
+    proconData.con.splice(idx, 1);
+    updateServerProCon();
 
   }
 
   function deleteSupport(side, claimIdx, supportIdx) {
-    proconData[0][side][claimIdx].support.splice(supportIdx, 1);
-//     proconData[0].con[claimIdx].support.splice(supportIdx, 1);
+    proconData[side][claimIdx].support.splice(supportIdx, 1);
   }
 
   function getDataReady() {
@@ -74,11 +77,12 @@ var proconModel = (function($) {
 
   function updateServerProCon() {
     $.ajax({
-      url: "/update_all_procons",
+      url: "/all_procons"+'/'+topic,
+      method: "put",
       data: proconData
     })
-    .done(function() {
-
+    .done(function(msg) {
+		console.log(msg);
     });
   }
 
@@ -218,17 +222,36 @@ var proconView = (function($) {
     var removeIcon = document.createElement('i');
     removeIcon.className = 'large red remove icon';
 
-	addIcon.addEventListener('click', function(){
+	addIcon.addEventListener('click', function(e){
+
 		proconController.addSupport(side, idx);
+		console.log('sending add supporting');
+		TogetherJS.send({
+			type: "addSupporting", 
+			side: side, 
+			index: idx});
 	}, false);
 	
+	addIcon.setAttribute("data-content", "Add support to this claim.");
+	removeIcon.setAttribute("data-content", "Remove this pair of claims.");
+	$(addIcon).popup({
+		hoverable: true
+	});
+	
 	removeIcon.addEventListener('click', function(){
-		proconController.deleteProcon(idx);
+		proconController.deleteProCon(idx);
+		TogetherJS.send({
+			type: "deleteProConPair", 
+			index: idx});		
 	}, false);
+	
+	$(removeIcon).popup({
+		hoverable: true
+	});
 
     row.appendChild(addIcon);
-
     row.appendChild(removeIcon);
+    
     return row;
   }
 
@@ -238,10 +261,20 @@ var proconView = (function($) {
 
     var removeIcon = document.createElement('i');
     removeIcon.className = 'large red remove icon';
-    
-    removeIcon.addEventListener("click", function(){
+	removeIcon.setAttribute("data-content", "Remove this support/backing.");
+	$(removeIcon).popup({
+		hoverable: true
+	});
+	    
+    removeIcon.addEventListener("click", function(e){
 	    proconController.deleteSupport(side, proconIdx, idx);
-    });
+	    console.log('fire togetherjs sync remove event');
+	    TogetherJS.send({
+		    type: "removeSupporting", 
+		    side: side, 
+		    proconIndex: proconIdx, 
+		    index: idx});
+    }, false);
 
 	row.appendChild(removeIcon);
     return row;
@@ -249,11 +282,9 @@ var proconView = (function($) {
 
   // Supporting argument for claims
   function createSupport(side, proconIdx, idx, supportContent) {
-//     var title = createTitle(supportContent, 'support');
     var content = createContent(supportContent, 'support');
     var icons = createFunctionIoncsForSupport(side, proconIdx, idx);
     var support = document.createDocumentFragment();
-//     support.appendChild(title);
     content.appendChild(icons);
     support.appendChild(content);
 
@@ -269,19 +300,20 @@ var proconView = (function($) {
     var content = createContent(claimRaw.content, "claim");
     var claim = document.createElement('div');
     var children = document.createElement('div');
+	var divider = document.createElement('div');
+	divider.className = 'ui divider';
 
     var i;
 
     claim.className = 'ui styled accordion';
     children.className = 'supporting';
 
-
     for (i = 0; i < claimRaw.support.length; i += 1) {
       children.appendChild(createSupport(side, idx, i, claimRaw.support[i].content));
     }
 
-    // content.appendChild(buttons);
     content.appendChild(icons);
+    content.appendChild(divider);
     content.appendChild(children);
     claim.appendChild(title);
     claim.appendChild(content);
@@ -299,7 +331,6 @@ var proconView = (function($) {
       aceEditor.renderer.setShowGutter(false);
       aceEditor.setHighlightActiveLine(false);
     }
-
   }
 
   function render() {
@@ -309,7 +340,6 @@ var proconView = (function($) {
     proandcon.html('');
 
     for (i = 0; i < proconDataRef.pro.length; i += 1) {
-      // console.log(proconData.pro[i]);
       var row = document.createElement('div');
       row.className = 'row';
 
@@ -334,7 +364,7 @@ var proconView = (function($) {
 }(jQuery));
 
 
-var proconController = (function () {
+var proconController = (function ($) {
   function addProCon() {
     proconModel.addProCon();
     initalizeView();
@@ -357,8 +387,10 @@ var proconController = (function () {
 
   function initalizeView() {
     var data = proconModel.getProConData();
-
-    proconView.init(data[0]);
+// 	console.log(data._id);
+	delete data._id;
+// 	console.log(data._id);
+    proconView.init(data);
     $('.ui.accordion').accordion({
       exclusive: false,
       duration: 350,
@@ -367,11 +399,11 @@ var proconController = (function () {
     $('.large.icon').css('cursor', 'pointer');
 
     TogetherJS.reinitialize();
- 
+
   }
 
-
   proconModel.init();
+  
   var interval = setInterval(function () {
     // console.log('set interval');
 
@@ -394,17 +426,22 @@ var proconController = (function () {
         });
       });
 
-      $('#addProConButton').click(function(e) {
-        addProCon();
-      });
+		var addProConButton = document.getElementById('addProConButton');
+		addProConButton.addEventListener('click', function(){
+			addProCon();
+			TogetherJS.send({
+				type: "addProConPair"
+			});
+		}, false);
     }
   }, 5);
 
   return {
 	  addSupport: addSupport,
 	  deleteProCon: deleteProCon,
-	  deleteSupport: deleteSupport
+	  deleteSupport: deleteSupport,
+	  addProCon: addProCon
   };
 
-}());
+}(jQuery));
 
