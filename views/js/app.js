@@ -6,8 +6,7 @@
 
  var MyApp = MyApp || {};
 
-
- var proconModel = (function($) {
+var proconModel = (function($) {
   // Load procon data from server
   var proconData = {},
   topic = "beast",
@@ -54,6 +53,7 @@
 
   function addSupport(side, claimIdx) {
     proconData[side][claimIdx].support.unshift(createEmptySupport());
+    updateServerProCon();
   }
 
   function deleteProConAtIndex(idx) {
@@ -65,6 +65,17 @@
 
   function deleteSupport(side, claimIdx, supportIdx) {
     proconData[side][claimIdx].support.splice(supportIdx, 1);
+    updateServerProCon();
+  }
+  
+  function updateProConAtIndex(side, claimIdx, content) {
+	  proconData[side][claimIdx].content = content;
+	  updateServerProCon();
+  }
+  
+  function updateSupportingAtIndex(side, claimIdx, index, content) {
+	  proconData[side][claimIdx].support[index].content = content;
+	  updateServerProCon();
   }
 
   function getDataReady() {
@@ -93,7 +104,9 @@
     deleteProConAtIndex: deleteProConAtIndex,
     deleteSupport: deleteSupport,
     getProConData: getProConData,
-    getDataReady: getDataReady
+    getDataReady: getDataReady,
+    updateProConAtIndex: updateProConAtIndex,
+    updateSupportingAtIndex: updateSupportingAtIndex
   };
 }(jQuery));
 
@@ -105,10 +118,10 @@ var proconView = (function($) {
     console.log('view init');
     proconDataRef = proconData;
 //     render(proconData);
-render();
-renderAceEditor();
-registerEvents();
-}
+	render();
+    renderAceEditor();
+    registerEvents();
+  }
 
 function registerEvents() {
   $('.pro .dropdown.icon').click(function(e) {
@@ -123,22 +136,22 @@ function registerEvents() {
     var proClaimTitles = $('.pro .claim.title');
     var proClaimIndex = proClaimTitles.index(event.target);
 
-    var conClaimTitles = $('.con .claim.title');
-    var conClaimIndex = proClaimIndex;
-    var classList = conClaimTitles[conClaimIndex].className.split(/\s+/);
-    var whetherActive = false;
-    for (var i = 0; i < classList.length; i += 1) {
-      if (classList[i] === 'active') {
-        whetherActive = true;
-        break;
+      var conClaimTitles = $('.con .claim.title');
+      var conClaimIndex = proClaimIndex;
+      var classList = conClaimTitles[conClaimIndex].className.split(/\s+/);
+      var whetherActive = false;
+      for (var i = 0; i < classList.length; i += 1) {
+        if (classList[i] === 'active') {
+          whetherActive = true;
+          break;
+        }
       }
-    }
-    if (whetherActive) {
-      $(conClaimTitles[conClaimIndex]).accordion('close');
-    } else {
-      $(conClaimTitles[conClaimIndex]).accordion('open');
-    }
-  });
+      if (whetherActive) {
+        $(conClaimTitles[conClaimIndex]).accordion('close');
+      } else {
+        $(conClaimTitles[conClaimIndex]).accordion('open');
+      }
+    });
 
   $('.con .claim.title').click(function(event) {
     var conClaimTitles = $('.con .claim.title');
@@ -183,9 +196,9 @@ function createTitle(content, argumentType) {
   return title;
 }
 
-function createContent(contentString, argumentType) {
-  var content = document.createElement('div');
-  content.className = argumentType + ' ' + 'active content';
+function createContent(contentString, side, proconIndex, index, argumentType) {
+    var content = document.createElement('div');
+    content.className = argumentType + ' ' + 'active content';
 
     // create Ace editor
     var editor = document.createElement('div');
@@ -193,7 +206,20 @@ function createContent(contentString, argumentType) {
     editor.appendChild(document.createTextNode(contentString));
 
     content.appendChild(editor);
-
+ 
+  var aceEditor = ace.edit(editor);
+  aceEditor.getSession().setMode("ace/mode/text");
+  aceEditor.getSession().setUseWrapMode(true);
+  aceEditor.renderer.setShowGutter(false);
+  aceEditor.setHighlightActiveLine(false);
+  aceEditor.on('change', function(event, sender){
+    var updatedContent = sender.getSession().getValue();
+    if (argumentType === 'claim') {
+      proconController.updateProConAtIndex(side, proconIndex, updatedContent);
+    } else {
+      proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
+    }
+  });
     return content;
   }
 
@@ -308,7 +334,7 @@ function createContent(contentString, argumentType) {
 
   // Supporting argument for claims
   function createSupport(side, proconIdx, idx, supportContent) {
-    var content = createContent(supportContent, 'support');
+    var content = createContent(supportContent, side, proconIdx, idx, 'support');
     var icons = createFunctionIoncsForSupport(side, proconIdx, idx);
     var support = document.createDocumentFragment();
     content.appendChild(icons);
@@ -321,7 +347,7 @@ function createContent(contentString, argumentType) {
   function createClaim(side, idx, claimRaw) {
     var title = createTitle(claimRaw.content.substring(0,50) + '...', "claim");
     var icons = createFunctionIconsForClaim(side, idx);
-    var content = createContent(claimRaw.content, "claim");
+    var content = createContent(claimRaw.content, side, idx, 0, "claim");
     var claim = document.createElement('div');
     var children = document.createElement('div');
     var divider = document.createElement('div');
@@ -346,6 +372,7 @@ function createContent(contentString, argumentType) {
   }
 
   function renderAceEditor() {
+/*
     var i;
     var elements = document.getElementsByClassName('editor');
     for (i = 0; i < elements.length; i += 1) {
@@ -355,6 +382,7 @@ function createContent(contentString, argumentType) {
       aceEditor.renderer.setShowGutter(false);
       aceEditor.setHighlightActiveLine(false);
     }
+*/
   }
 
   function render() {
@@ -424,10 +452,20 @@ var proconController = (function ($) {
     initalizeView();
   }
 
+  function updateProConAtIndex(side, claimIdx, content) {
+	  proconModel.updateProConAtIndex(side, claimIdx, content);
+  }
+  
+  function updateSupportingAtIndex(side, claimIdx, index, content){
+	  proconModel.updateSupportingAtIndex(side, claimIdx, index, content);
+  }
+  
   function initalizeView() {
     var data = proconModel.getProConData();
 // 	console.log(data._id);
-delete data._id;
+//	Need serious consideration about this!!!
+//	Current problem: _id property cannot be deleted on server side. Cannot figure out why.
+	delete data._id;
 // 	console.log(data._id);
 proconView.init(data);
 $('.ui.accordion').accordion({
@@ -475,12 +513,14 @@ var interval = setInterval(function () {
      }
    }, 5);
 
-return {
- addSupport: addSupport,
- deleteProCon: deleteProCon,
- deleteSupport: deleteSupport,
- addProCon: addProCon
-};
+  return {
+	  addSupport: addSupport,
+	  deleteProCon: deleteProCon,
+	  deleteSupport: deleteSupport,
+	  addProCon: addProCon,
+	  updateProConAtIndex: updateProConAtIndex,
+	  updateSupportingAtIndex: updateSupportingAtIndex
+  };
 
 }(jQuery));
 

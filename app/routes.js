@@ -78,10 +78,6 @@ module.exports = function(app, passport) {
       user: req.user
     });
   });
-  
-  app.get('/list', function(req, res) {
-	  
-  });
 
   app.get('/logout', function(req, res) {
     console.log('log out');
