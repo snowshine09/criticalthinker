@@ -1,6 +1,6 @@
 var express = require('express'),
     app = express(),
-    port = 8070,
+    port = 8080,
     mongoose = require('mongoose'),
     passport = require('passport'),
     flash = require('connect-flash'),
@@ -18,6 +18,7 @@ app.use('/', express.static(path.join(__dirname, 'views')));
 
 
 var ProCon = require('./app/models/procon.js');
+console.log("entering beast topic");
 procon = new ProCon();
 procon.topic = 'beast';
 procon.pro = [{

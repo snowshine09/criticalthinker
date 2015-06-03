@@ -46,8 +46,23 @@ module.exports = function(app, passport) {
       res.render('signup.ejs');
   });
 
+  app.get('/changetemplate',function(req, res){
+      res.render('template_index.ejs',{
+        user: req.user
+      });
+  });
   app.get('/instructor', function(req, res) {
       res.render('instructor.ejs');
+  });
+
+  app.get('/qna', function(req, res){
+      res.render('QnA.ejs', {question_idxs: req.q_idxs});   
+  });
+
+  app.get('/proncon', function(req, res){
+      res.render('index.ejs', {
+        user: req.user
+      });
   });
 
   // Facebook authentication
