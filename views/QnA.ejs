@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="./css/qna.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.12.0/semantic.min.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+	<script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.12.0/semantic.min.js"></script>
+	<script src="http://jsblocks.com/jsblocks/blocks.js"></script>
+
+	<style>
+
+	</style>
+</head>
+<body>
+	<div class="ui inverted menu">
+		<div class="item">
+			Welcome to Critical Thinker
+		</div>
+		<div class="item">
+			<a href='/logout' class='ui red label'>Logout</a>
+		</div>
+	</div>
+	<div class="ui breadcrumb">
+		<a class="section">Home</a>
+		<div class="divider"> / </div>
+		<a class="section">Templates</a>
+		<div class="divider"> / </div>
+		<div class="active section">QnA</div>
+	</div>
+	<div class="ui grid">
+		<div class="ui segment">
+			<h1 class="ui header">Question and Answer</h1>
+			<div class="qna questions"></div>
+		</div>
+		<div class="ui segment">
+			<h1 class="ui header">Discussions</h1>
+			<div class="qna discussion"></div>
+		</div>
+	</div>
+	<script src="./js/qna.js"></script>
+</body>
+</html>

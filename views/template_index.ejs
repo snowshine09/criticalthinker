@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Critical Thinker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.12.0/semantic.min.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+  <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.12.0/semantic.min.js"></script>
+</head>
+<body>
+  <div class="ui inverted menu">
+    <div class="item">
+      Welcome to Critical Thinker, <string> <%= user ? user.facebook.name : ' ' %> </string>!
+    </div>
+    <div class="item">
+      <a href='/logout' class='ui red label right'>Logout</a>
+    </div>
+  </div>
+
+  <div class="ui grid">
+    <div class="two column row">
+      <div class="six column wide">
+        <div class='ui segment'>
+
+          <div class='ui vertical menu template container group'>Templates
+            <div class="item">
+              <div class="ui input"><input type="text" placeholder="Search..."></div>
+              <div class="templates items">
+                <a href="/QnA" class="item transition">Question and Answer</a>
+                <a href="#02" class="item transition">Discussion Board</a>
+                <a href="/proncon" class="item transition">Pro and Con</a>
+                <a href="/ibis" class="item transition">Issue based Information System</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="six column wide">
+          <div class="prop-template"><i class="write icon"></i>Request a new template</div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+  </html>
