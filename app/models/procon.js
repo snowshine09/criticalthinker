@@ -16,6 +16,6 @@ var proconSchema = mongoose.Schema({
       }]
     }]
 
-});
+},{collection: 'procon'});
 
 module.exports = mongoose.model('ProCon', proconSchema);

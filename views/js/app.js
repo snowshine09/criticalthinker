@@ -6,7 +6,8 @@
 
  var MyApp = MyApp || {};
 
-var proconModel = (function($) {
+ var GLOBAL = {};
+ var proconModel = (function($) {
   // Load procon data from server
   var proconData = {},
   topic = "beast",
@@ -14,11 +15,14 @@ var proconModel = (function($) {
 
   function fetchData() {
     $.ajax({
-      url: "/all_procons/"+topic
+      url: "/all_procons/"+topic,
+      method: "GET"
     })
     .done(function(data) {
       dataReady = true;
       proconData = data;
+      GLOBAL.savedData = data;
+      GLOBAL.topic = data.topic;
       console.log(proconData);
     });
   }
@@ -46,17 +50,20 @@ var proconModel = (function($) {
   }
 
   function addProCon() {
+    console.log('addProCon');
     proconData.pro.unshift(createEmptyClaim());
     proconData.con.unshift(createEmptyClaim());
     updateServerProCon();
   }
 
   function addSupport(side, claimIdx) {
+    console.log('addSupport');
     proconData[side][claimIdx].support.unshift(createEmptySupport());
     updateServerProCon();
   }
 
   function deleteProConAtIndex(idx) {
+    console.log('deleteProConAtIndex');
     proconData.pro.splice(idx, 1);
     proconData.con.splice(idx, 1);
     updateServerProCon();
@@ -64,50 +71,54 @@ var proconModel = (function($) {
   }
 
   function deleteSupport(side, claimIdx, supportIdx) {
+    console.log('deleteSupport');
     proconData[side][claimIdx].support.splice(supportIdx, 1);
     updateServerProCon();
   }
   
   function updateProConAtIndex(side, claimIdx, content) {
-	  proconData[side][claimIdx].content = content;
-	  updateServerProCon();
+    console.log('updateProConAtIndex');
+    proconData[side][claimIdx].content = content;
+    updateServerProCon();
   }
-  
+
   function updateSupportingAtIndex(side, claimIdx, index, content) {
-	  proconData[side][claimIdx].support[index].content = content;
-	  updateServerProCon();
-  }
+   console.log('updateSupportingAtIndex');
+   proconData[side][claimIdx].support[index].content = content;
+   updateServerProCon();
+ }
 
-  function getDataReady() {
-    return dataReady;
-  }
+ function getDataReady() {
+  return dataReady;
+}
 
-  function getProConData() {
-    return proconData;
-  }
+function getProConData() {
+  fetchData();
+  return proconData;
+}
 
-  function updateServerProCon() {
-    $.ajax({
-      url: "/all_procons"+'/'+topic,
-      method: "put",
-      data: proconData
-    })
-    .done(function(msg) {
-      console.log(msg);
-    });
-  }
+function updateServerProCon() {
+  $.ajax({
+    url: "/all_procons"+'/'+topic,
+    method: "put",
+    data: proconData
+  })
+  .done(function(msg) {
+    console.log('updateServerProCon msg: ' + msg);
+  });
+}
 
-  return {
-    init: init,
-    addProCon: addProCon,
-    addSupport: addSupport,
-    deleteProConAtIndex: deleteProConAtIndex,
-    deleteSupport: deleteSupport,
-    getProConData: getProConData,
-    getDataReady: getDataReady,
-    updateProConAtIndex: updateProConAtIndex,
-    updateSupportingAtIndex: updateSupportingAtIndex
-  };
+return {
+  init: init,
+  addProCon: addProCon,
+  addSupport: addSupport,
+  deleteProConAtIndex: deleteProConAtIndex,
+  deleteSupport: deleteSupport,
+  getProConData: getProConData,
+  getDataReady: getDataReady,
+  updateProConAtIndex: updateProConAtIndex,
+  updateSupportingAtIndex: updateSupportingAtIndex
+};
 }(jQuery));
 
 
@@ -117,24 +128,24 @@ var proconView = (function($) {
   function init(proconData) {
     console.log('view init');
     proconDataRef = proconData;
-//     render(proconData);
-	render();
+    //render(proconData);
+    render();
     renderAceEditor();
     registerEvents();
   }
 
-function registerEvents() {
-  $('.pro .dropdown.icon').click(function(e) {
+  function registerEvents() {
+    $('.pro .dropdown.icon').click(function(e) {
       // Preventing icon click, which will mess up the interface.
       e.stopPropagation();
     });
-  $('.con .dropdown.icon').click(function(e) {
+    $('.con .dropdown.icon').click(function(e) {
       // Preventing icon click, which will mess up the interface.
       e.stopPropagation();
     });
-  $('.pro .claim.title').click(function(event) {
-    var proClaimTitles = $('.pro .claim.title');
-    var proClaimIndex = proClaimTitles.index(event.target);
+    $('.pro .claim.title').click(function(event) {
+      var proClaimTitles = $('.pro .claim.title');
+      var proClaimIndex = proClaimTitles.index(event.target);
 
       var conClaimTitles = $('.con .claim.title');
       var conClaimIndex = proClaimIndex;
@@ -153,73 +164,98 @@ function registerEvents() {
       }
     });
 
-  $('.con .claim.title').click(function(event) {
-    var conClaimTitles = $('.con .claim.title');
-    var conClaimIndex = conClaimTitles.index(event.target);
+    $('.con .claim.title').click(function(event) {
+      var conClaimTitles = $('.con .claim.title');
+      var conClaimIndex = conClaimTitles.index(event.target);
 
-    var proClaimTitles = $('.pro .claim.title');
-    var proClaimIndex = conClaimIndex;
-    var classList = conClaimTitles[proClaimIndex].className.split(/\s+/);
-    var whetherActive = false;
-    for (var i = 0; i < classList.length; i += 1) {
-      if (classList[i] === 'active') {
-        whetherActive = true;
-        break;
+      var proClaimTitles = $('.pro .claim.title');
+      var proClaimIndex = conClaimIndex;
+      var classList = conClaimTitles[proClaimIndex].className.split(/\s+/);
+      var whetherActive = false;
+      for (var i = 0; i < classList.length; i += 1) {
+        if (classList[i] === 'active') {
+          whetherActive = true;
+          break;
+        }
       }
-    }
-    if (whetherActive) {
-      $(proClaimTitles[proClaimIndex]).accordion('close');
-    } else {
-      $(proClaimTitles[proClaimIndex]).accordion('open');
-    }
-  });
+      if (whetherActive) {
+        $(proClaimTitles[proClaimIndex]).accordion('close');
+      } else {
+        $(proClaimTitles[proClaimIndex]).accordion('open');
+      }
+    });
 
-  $('.ui.dropdown')
-  .dropdown();
-}
+    $('.ui.dropdown')
+    .dropdown();
+  }
 
-function createTitle(content, argumentType) {
-  var title = document.createElement('div');
-  title.className = argumentType + ' ' + 'active title';
-  title.setAttribute("data-content", "Click to expand or collapse");
-  var icon = document.createElement('i');
-  icon.className = 'dropdown icon';
-  // var popUI = document.createElement('div');
-  // popUI.className='ui popup';
-  // popUI.setAttribute("data-content", "Click to expand or collapse");
-  // $(popUI).popup({hoverable:true});
-  $(title).popup({hoverable:true});
-  title.appendChild(icon);
-  // title.appendChild(popUI);
-  title.appendChild(document.createTextNode(content));
+  function createTitle(content, argumentType) {
+    var title = document.createElement('div');
+    title.className = argumentType + ' ' + 'active title';
+    title.setAttribute("data-content", "Click to expand or collapse");
+    var icon = document.createElement('i');
+    icon.className = 'dropdown icon';
+    $(title).popup({hoverable:true});
+    title.appendChild(icon);
+    title.appendChild(document.createTextNode(content));
 
-  return title;
-}
+    return title;
+  }
 
-function createContent(contentString, side, proconIndex, index, argumentType) {
+  function createContent(contentString, side, proconIndex, index, argumentType) {
     var content = document.createElement('div');
     content.className = argumentType + ' ' + 'active content';
 
     // create Ace editor
     var editor = document.createElement('div');
     editor.className = "editor";
+    editor.setAttribute("id", argumentType + "_editor_" + proconIndex);
     editor.appendChild(document.createTextNode(contentString));
-
     content.appendChild(editor);
- 
-  var aceEditor = ace.edit(editor);
-  aceEditor.getSession().setMode("ace/mode/text");
-  aceEditor.getSession().setUseWrapMode(true);
-  aceEditor.renderer.setShowGutter(false);
-  aceEditor.setHighlightActiveLine(false);
-  aceEditor.on('change', function(event, sender){
-    var updatedContent = sender.getSession().getValue();
-    if (argumentType === 'claim') {
-      proconController.updateProConAtIndex(side, proconIndex, updatedContent);
-    } else {
-      proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
-    }
+    
+
+    var aceEditor = ace.edit(editor);
+    aceEditor.getSession().setMode("ace/mode/text");
+    aceEditor.getSession().setUseWrapMode(true);
+    aceEditor.renderer.setShowGutter(false);
+    aceEditor.setHighlightActiveLine(false);
+    
+    // aceEditor.setValue(contentString)
+    // var changed = false;
+    aceEditor.on('change', function(event, sender){
+
+      var updatedContent = sender.getSession().getValue();
+      // if (argumentType === 'claim') {
+      //   proconController.updateProConAtIndex(side, proconIndex, updatedContent);
+      // } else if(argumentType == 'support'){
+      //   proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
+      // }
+
+      console.log(sender.container.id+'changing!!!!!!!!!!!!!');
+      GLOBAL.changed = true;
+      setTimeout(autoSave(updatedContent,sender),3000);
   });
+    // $("#"+editor.id).data('editor',aceEditor);
+    
+
+    var autoSave = function(updatedContent,sender){
+      if (GLOBAL.changed && updatedContent != GLOBAL.savedData)
+      {
+        // alert('different now!');
+        console.log('updatedContent='+updatedContent);
+        console.log('sender.content='+sender.getSession().getValue());
+        console.log('savedData = '+ GLOBAL.savedData);
+        if (argumentType === 'claim') {
+          proconController.updateProConAtIndex(side, proconIndex, updatedContent);
+        } else if(argumentType == 'support'){
+          proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
+        }
+        GLOBAL.changed = false;
+        console.log('autosaved: ' + updatedContent);
+      }
+      if(GLOBAL.changed)setTimeout(autoSave(updatedContent,sender), 3000);
+    };
+    
     return content;
   }
 
@@ -270,7 +306,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     });
 
     row.appendChild(addIcon);
-    
+
     return row;
   }
 
@@ -289,7 +325,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     $(removeIcon).popup({
       hoverable: true
     });
-    
+
     var addProConIcon = document.createElement('i');
     addProConIcon.className = 'large teal plus circle icon';
     addProConIcon.setAttribute("data-content", "Add a new pair of claims.");
@@ -382,7 +418,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
       aceEditor.renderer.setShowGutter(false);
       aceEditor.setHighlightActiveLine(false);
     }
-*/
+    */
   }
 
   function render() {
@@ -434,48 +470,52 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
 var proconController = (function ($) {
   function addProCon() {
     proconModel.addProCon();
-    initalizeView();
+    initializeView();
   }
 
   function addSupport(side, claimIdx) {
     proconModel.addSupport(side, claimIdx);
-    initalizeView();
+    initializeView();
   }
 
   function deleteProCon(idx) {
     proconModel.deleteProConAtIndex(idx);
-    initalizeView();
+    initializeView();
   }
 
   function deleteSupport(side, claimIdx, supportIdx) {
     proconModel.deleteSupport(side, claimIdx, supportIdx);
-    initalizeView();
+    initializeView();
   }
 
   function updateProConAtIndex(side, claimIdx, content) {
-	  proconModel.updateProConAtIndex(side, claimIdx, content);
-  }
-  
-  function updateSupportingAtIndex(side, claimIdx, index, content){
-	  proconModel.updateSupportingAtIndex(side, claimIdx, index, content);
-  }
-  
-  function initalizeView() {
-    var data = proconModel.getProConData();
-// 	console.log(data._id);
-//	Need serious consideration about this!!!
-//	Current problem: _id property cannot be deleted on server side. Cannot figure out why.
-	delete data._id;
-// 	console.log(data._id);
-proconView.init(data);
-$('.ui.accordion').accordion({
-  exclusive: false,
-  duration: 350,
-});
+   proconModel.updateProConAtIndex(side, claimIdx, content);
+ }
 
-$('.large.icon').css('cursor', 'pointer');
+ function updateSupportingAtIndex(side, claimIdx, index, content){
+   proconModel.updateSupportingAtIndex(side, claimIdx, index, content);
+ }
 
-TogetherJS.reinitialize();
+ function initializeView() {
+  var data = proconModel.getProConData();
+  console.log('initializing view .................. I commented out data._id');
+  console.log("initializing view ING: "+data._id);
+  //	Need serious consideration about this!!!
+  //	Current problem: _id property cannot be deleted on server side. Cannot figure out why.
+  // if(data._id != undefined){
+  //   data = data.toObject();
+  // }
+  // delete data._id;
+  // console.log(data._id);
+  proconView.init(data);
+  $('.ui.accordion').accordion({
+    exclusive: false,
+    duration: 350,
+  });
+
+  $('.large.icon').css('cursor', 'pointer');
+
+  TogetherJS.reinitialize();
 
 }
 
@@ -487,7 +527,7 @@ var interval = setInterval(function () {
     if (proconModel.getDataReady() === true) {
       clearInterval(interval);
 
-      initalizeView();
+      initializeView();
 
       /**
        * collapse all claims and arguments
@@ -513,14 +553,14 @@ var interval = setInterval(function () {
      }
    }, 5);
 
-  return {
-	  addSupport: addSupport,
-	  deleteProCon: deleteProCon,
-	  deleteSupport: deleteSupport,
-	  addProCon: addProCon,
-	  updateProConAtIndex: updateProConAtIndex,
-	  updateSupportingAtIndex: updateSupportingAtIndex
-  };
+return {
+ addSupport: addSupport,
+ deleteProCon: deleteProCon,
+ deleteSupport: deleteSupport,
+ addProCon: addProCon,
+ updateProConAtIndex: updateProConAtIndex,
+ updateSupportingAtIndex: updateSupportingAtIndex
+};
 
 }(jQuery));
 
