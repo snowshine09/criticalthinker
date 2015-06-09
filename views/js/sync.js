@@ -33,5 +33,21 @@
 		console.log('deleteProConPair');
 		proconController.deleteProCon(msg.index);		
 	});
+
+	TogetherJS.hub.on('updateProConAtIndex', function(msg){
+		if (!msg.sameUrl) {
+			return;
+		}		
+		console.log('updateProConAtIndex');
+		proconController.updateProConAtIndex(msg.side, msg.claimIdx, msg.content);		
+	});
+
+	TogetherJS.hub.on('updateSupportingAtIndex', function(msg){
+		if (!msg.sameUrl) {
+			return;
+		}		
+		console.log('updateSupportingAtIndex');
+		proconController.deleteProCon(msg.side, msg.claimIdx, msg.index, msg.content);		
+	});
 }());
 

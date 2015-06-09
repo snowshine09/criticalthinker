@@ -99,12 +99,13 @@ function getProConData() {
 
 function updateServerProCon() {
   $.ajax({
-    url: "/all_procons"+'/'+topic,
-    method: "put",
+    url: "/all_procons/"+topic,
+    method: "PUT",
     data: proconData
   })
   .done(function(msg) {
     console.log('updateServerProCon msg: ' + msg);
+    console.dir(msg);
   });
 }
 
@@ -128,7 +129,9 @@ var proconView = (function($) {
   function init(proconData) {
     console.log('view init');
     proconDataRef = proconData;
-    //render(proconData);
+    
+    GLOBAL.timeout = null;
+    // GLOBAL.Diff
     render();
     renderAceEditor();
     registerEvents();
@@ -209,7 +212,8 @@ var proconView = (function($) {
     // create Ace editor
     var editor = document.createElement('div');
     editor.className = "editor";
-    editor.setAttribute("id", argumentType + "_editor_" + proconIndex);
+    var postfix = argumentType ==='claim'?'':index;
+    editor.setAttribute("id", side + '_' + argumentType + "_editor_" + proconIndex + '_' + postfix);
     editor.appendChild(document.createTextNode(contentString));
     content.appendChild(editor);
     
@@ -233,27 +237,43 @@ var proconView = (function($) {
 
       console.log(sender.container.id+'changing!!!!!!!!!!!!!');
       GLOBAL.changed = true;
-      setTimeout(autoSave(updatedContent,sender),3000);
-  });
+      // buffer
+      clearTimeout(GLOBAL.timeout);
+      GLOBAL.timeout = setTimeout(autoSave,0,updatedContent,sender);
+    });
     // $("#"+editor.id).data('editor',aceEditor);
     
 
     var autoSave = function(updatedContent,sender){
-      if (GLOBAL.changed && updatedContent != GLOBAL.savedData)
+      var savedContent = argumentType === 'claim'?GLOBAL.savedData[side][proconIndex].content:GLOBAL.savedData[side][proconIndex].support[index].content;
+      if (GLOBAL.changed && updatedContent != savedContent)
       {
         // alert('different now!');
         console.log('updatedContent='+updatedContent);
         console.log('sender.content='+sender.getSession().getValue());
-        console.log('savedData = '+ GLOBAL.savedData);
+        console.log('savedData = '+ savedContent);
         if (argumentType === 'claim') {
           proconController.updateProConAtIndex(side, proconIndex, updatedContent);
+          // TogetherJS.send({
+          //  type: "updateProConAtIndex", 
+          //  side: side, 
+          //  claimIdx: proconIndex,
+          //  content: updatedContent});
+
         } else if(argumentType == 'support'){
           proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
+          // TogetherJS.send({
+          //  type: "updateSupportingAtIndex", 
+          //  side: side, 
+          //  claimIdx: proconIndex,
+          //  index: index,
+          //  content: updatedContent});
+          
         }
         GLOBAL.changed = false;
         console.log('autosaved: ' + updatedContent);
       }
-      if(GLOBAL.changed)setTimeout(autoSave(updatedContent,sender), 3000);
+      // if(GLOBAL.changed)setTimeout(autoSave(updatedContent,sender), 3000);
     };
     
     return content;
@@ -505,8 +525,9 @@ var proconController = (function ($) {
   // if(data._id != undefined){
   //   data = data.toObject();
   // }
-  // delete data._id;
-  // console.log(data._id);
+  console.log(data._id);
+  delete data._id;
+  console.log(data._id);
   proconView.init(data);
   $('.ui.accordion').accordion({
     exclusive: false,

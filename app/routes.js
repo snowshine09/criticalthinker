@@ -21,28 +21,35 @@ module.exports = function(app, passport) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(data));
     console.log("this is /all_procons/:topic(get) stringified data: " + data);
+    console.log(data._id);
+    delete data._id;
+    console.log(data._id);
   });
  });
   
   app.put('/all_procons/:topic', function(req, res) {
-   var topic = req.params.topic;
-   var data = req.body;
-   console.log('in server put');
-   console.log(req.body);
-   console.log(topic);
-   if(data._id != undefined){
-    delete data._id;
-  }
-  
-  ProCon.update({'topic':topic}, data, {upsert: true}, function(err, raw){
-    if(err){
-      console.log('error in updating');
-      console.log(err);
+    console.log('entering app.put');
+    var topic = req.params.topic;
+    var data = req.body;
+    console.log('in server put');
+    console.log(req.body);
+    console.log(topic);
+    if(data._id != undefined){
+      console.log(data._id);
+      delete data._id;
+      console.log(data._id);
     }
-    console.log('The raw response from Mongo was ', raw);
+    
+    ProCon.update({'topic':topic}, data, {upsert: true}, function(err, raw){
+      if(err){
+        console.log('error in updating');
+        console.log(err);
+      }
+      console.log('The raw response from Mongo was ', raw);
+    });
+    console.log("this is /all_procons/:topic(put) stringified data: " + data);
+    res.send(200, {"youKnow":"putter"});
   });
-  console.log("this is /all_procons/:topic(put) stringified data: " + data);
-});
   
   app.get('/top_names', function(req, res) {
 
