@@ -98,6 +98,7 @@ function getProConData() {
 }
 
 function updateServerProCon() {
+  console.log("entering ajax!! The current ProConData is " + proconData);
   $.ajax({
     url: "/all_procons/"+topic,
     method: "PUT",
@@ -133,7 +134,6 @@ var proconView = (function($) {
     GLOBAL.timeout = null;
     // GLOBAL.Diff
     render();
-    renderAceEditor();
     registerEvents();
   }
 
@@ -234,12 +234,9 @@ var proconView = (function($) {
       // } else if(argumentType == 'support'){
       //   proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
       // }
-
-      console.log(sender.container.id+'changing!!!!!!!!!!!!!');
       GLOBAL.changed = true;
-      // buffer
       clearTimeout(GLOBAL.timeout);
-      GLOBAL.timeout = setTimeout(autoSave,0,updatedContent,sender);
+      GLOBAL.timeout = setTimeout(autoSave,1000,updatedContent,sender); //you can set the autosave intervals to enhance the performance, currently set to 1s
     });
     // $("#"+editor.id).data('editor',aceEditor);
     
@@ -254,26 +251,12 @@ var proconView = (function($) {
         console.log('savedData = '+ savedContent);
         if (argumentType === 'claim') {
           proconController.updateProConAtIndex(side, proconIndex, updatedContent);
-          // TogetherJS.send({
-          //  type: "updateProConAtIndex", 
-          //  side: side, 
-          //  claimIdx: proconIndex,
-          //  content: updatedContent});
-
         } else if(argumentType == 'support'){
-          proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
-          // TogetherJS.send({
-          //  type: "updateSupportingAtIndex", 
-          //  side: side, 
-          //  claimIdx: proconIndex,
-          //  index: index,
-          //  content: updatedContent});
-          
+          proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);          
         }
         GLOBAL.changed = false;
         console.log('autosaved: ' + updatedContent);
       }
-      // if(GLOBAL.changed)setTimeout(autoSave(updatedContent,sender), 3000);
     };
     
     return content;
@@ -427,19 +410,6 @@ var proconView = (function($) {
     return claim;
   }
 
-  function renderAceEditor() {
-/*
-    var i;
-    var elements = document.getElementsByClassName('editor');
-    for (i = 0; i < elements.length; i += 1) {
-      var aceEditor = ace.edit(elements[i]);
-      aceEditor.getSession().setMode("ace/mode/text");
-      aceEditor.getSession().setUseWrapMode(true);
-      aceEditor.renderer.setShowGutter(false);
-      aceEditor.setHighlightActiveLine(false);
-    }
-    */
-  }
 
   function render() {
 
