@@ -3,17 +3,20 @@ var mongoose = require('mongoose'),
 
 
 var userSchema = mongoose.Schema({
-    local: {
+    username: String,
         email: String,
+        avatarname: String,
         password: String
-    },
-    facebook: {
-        id: String,
-        token: String,
-        email: String,
-        name: String
-    }
-});
+    // local: {
+        
+    // },
+    // facebook: {
+    //     id: String,
+    //     token: String,
+    //     email: String,
+    //     name: String
+    // }
+}, {collection:"user"});
 
 userSchema.methods.generateHash = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);

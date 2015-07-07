@@ -185,29 +185,118 @@ var proconView = (function($) {
         $(proClaimTitles[proClaimIndex]).accordion('close');
       } else {
         $(proClaimTitles[proClaimIndex]).accordion('open');
-      }
+      }     
     });
 
     $('.ui.dropdown')
     .dropdown();
-  }
+    $('ui.sticky')
+    .sticky({
+      context: '#historycontext'
+    });
 
-  function createTitle(content, argumentType) {
-    var title = document.createElement('div');
-    title.className = argumentType + ' ' + 'active title';
-    title.setAttribute("data-content", "Click to expand or collapse");
-    var icon = document.createElement('i');
-    icon.className = 'dropdown icon';
-    $(title).popup({hoverable:true});
-    title.appendChild(icon);
-    title.appendChild(document.createTextNode(content));
+    var historyBtn = document.getElementsByClassName('chathistory-dock-right btn')[0], Chatcontent = document.getElementsByClassName('chathistory-dock-right content')[0];
+    historyBtn.addEventListener('click', function(e){
+      if($(Chatcontent).css('display')==='none'){
+        $.ajax({
+          url: "/chathistory/"+GLOBAL.topic,
+          method: "GET"
+        })
+        .done(function(data){
+          // Chatcontent.appendChild(document.createTextNode(data));
+          // var result = new EJS({url:'chathistory.ejs'}).render({chats:data});
+          // var ejs = require('ejs');
+          // var result = ejs.render('chathistory', {chats:data});
+          document.getElementsByClassName('chathistory-dock-right content')[0].innerHTML = data;
 
-    return title;
-  }
+          $(Chatcontent).show();
+        });
+        $(Chatcontent).transition('slide left');
+      }
+      else {
+        $(Chatcontent).hide();
+        $(Chatcontent).removeClass("visible");
+        while(Chatcontent.firstChild) {
+          Chatcontent.removeChild(Chatcontent.firstChild);
+        }
+      }
+    }, false);
+    $.ajax({
+      url: "/getusername",
+      method: "GET",
+      error: function(xhr, desc, err) {
+        console.log(xhr);
+        console.log("Details0: " + desc + "\nError:" + err);
+      },
+    })
+    .done(function(data){
+      console.log('username is '+data.username);
+      GLOBAL.username = data.username;
+    });
+    $.ajax({
+      url: "/checkExistAvatar",
+      method: "GET",
+      error: function(xhr, desc, err) {
+        console.log(xhr);
+        console.log("Details0: " + desc + "\nError:" + err);
+      },
+    })
+    .done(function(data){
+      console.log("checked avatar exists or not! data.resp is ");
+      console.dir(data);
+      if(!data.resp.exist) {
+        $.ajax({
+          url: "/SaveScreenName/"+TogetherJS.config.get("getUserName"),
+          method: "GET",
+          error: function(xhr, desc, err) {
+            console.log(xhr);
+            console.log("Details0: " + desc + "\nError:" + err);
+          },
+        })
+        .done(function(data){
+          console.log('save screenname success!'+data);
+          console.dir(data);
+          
+        });
+      }
+      else {
+        TogetherJS.config("getUserName", data.resp.avatarname); 
+      }
+    });
+    
+    //login register
+    // var loginForm = document.getElementsByClassName('form userlogin')[0];
+    // loginForm.addEventListener('submit',function(e){
+    //   e.preventDefault();
+    //   var username = document.getElementsByClassName('userlogin username')[0].innerHTML,
+    //   pwd = document.getElementsByClassName('userlogin userpwd')[0].innerHTML;
+    //   $.ajax({
+    //     url: "/userlogin",
+    //     method: "POST",
+    //     data:{username:username, pwd:pwd}
+    //   })
+    //   .done(function(data){
+    //     console.log("login sucess");
+    //   })
+    // },false);
+}
 
-  function createContent(contentString, side, proconIndex, index, argumentType) {
-    var content = document.createElement('div');
-    content.className = argumentType + ' ' + 'active content';
+function createTitle(content, argumentType) {
+  var title = document.createElement('div');
+  title.className = argumentType + ' ' + 'active title';
+  title.setAttribute("data-content", "Click to expand or collapse");
+  var icon = document.createElement('i');
+  icon.className = 'dropdown icon';
+  $(title).popup({hoverable:true});
+  title.appendChild(icon);
+  title.appendChild(document.createTextNode(content));
+
+  return title;
+}
+
+function createContent(contentString, side, proconIndex, index, argumentType) {
+  var content = document.createElement('div');
+  content.className = argumentType + ' ' + 'active content';
 
     // create Ace editor
     var editor = document.createElement('div');
@@ -384,9 +473,21 @@ var proconView = (function($) {
 
   // Pro or Con claims. Can contain multiple supporting argument.
   function createClaim(side, idx, claimRaw) {
-    var title = createTitle(claimRaw.content.substring(0,50) + '...', "claim");
-    var icons = createFunctionIconsForClaim(side, idx);
-    var content = createContent(claimRaw.content, side, idx, 0, "claim");
+    var maxLength = 52; // maximum number of characters to extract
+    //trim the string to the maximum length
+    var trimmedString = claimRaw.content.substring(0, maxLength);
+    //re-trim if we are in the middle of a word
+    if(maxLength<claimRaw.content.length && claimRaw.content[maxLength]!=' ')
+    {
+      maxLength = Math.min(trimmedString.length, trimmedString.lastIndexOf(" "));
+      
+    }
+    var title = createTitle(claimRaw.content.substring(0,maxLength) + ' ...', "claim");
+    var icons = createFunctionIconsForClaim(side, idx); //replace with your string.
+    
+
+    
+    var content = createContent('...' + claimRaw.content.substring(maxLength), side, idx, 0, "claim");
     var claim = document.createElement('div');
     var children = document.createElement('div');
     var divider = document.createElement('div');
@@ -426,12 +527,12 @@ var proconView = (function($) {
       rightpadding.className = 'rightpadding two wide column';
       // midContainer.className = 'midContainer two column centered row';
       var pro = document.createElement('div');
-      pro.className = 'pro six wide column';
+      pro.className = 'pro seven wide column';
 
       pro.appendChild(createClaim('pro', i, proconDataRef.pro[i]));
 
       var con = document.createElement('div');
-      con.className = 'con six wide column';
+      con.className = 'con seven wide column';
       con.appendChild(createClaim('con', i, proconDataRef.con[i]));
 
       // midContainer.appendChild(pro);

@@ -1,0 +1,63 @@
+<div class="chathistory">
+	<% if(chats!=null){%>
+	<header class="chat-top-bar">
+		Chat History
+	</header>
+	<ol class="chathistory content conversation ui segment">
+		<% chats.forEach(function(chat){ %>
+
+		<% if(chat.username == chat.loginname) { %>
+		<li class="ui vertical segment chatitem bkg-self-chat">
+			
+			<div class="messages ui pointing right label">
+				<div class="message-text">
+					<span data-id=<%- chat['_id'].str %> class="chattext"><%=chat.text%></span>
+				</div>
+				<div class="message-timestamp inline field">
+					<i class="history icon"></i>
+					<time datetime=<%= chat.time.getFullYear()+'-'+chat.time.getMonth()+'-' + chat.time.getDate() + 'T'+chat.time.getHours() + ':' + chat.time.getMinutes() %> >
+						<span class="time-elapsed">
+							<%= chat.elapsed %>
+						</span>
+					</time>
+				</div>
+				
+			</div>
+			<div class="userinfo chatheader">
+				<div class="ui small header right">
+					<img src="/images/avatar/large/chris.jpg" class="ui circular image user right">
+					<span class="username"><%= chat.username %></span>
+				</div>
+			</div>
+			
+		</li>
+		
+		<% } else { %>
+		<li class="ui vertical segment chatitem bkg-other-chat">
+			<div class="userinfo chatheader">
+				<div class="ui small header">
+					<img src="/images/avatar/large/chris.jpg" class="ui circular image user">
+					<span class="username"><%= chat.username %></span>
+				</div>
+			</div>
+			<div class="messages ui pointing left label">
+				<div class="message-text">
+					<div data-id=<%- chat['_id'].str %> class="chattext"><%=chat.text%></div>
+				</div>
+				<div class="message-timestamp inline field">
+					<i class="history icon"></i>
+					<time datetime=<%= chat.time.getFullYear()+'-'+chat.time.getMonth()+'-' + chat.time.getDate() + 'T'+chat.time.getHours() + ':' + chat.time.getMinutes() %> >
+						<span class="time-elapsed">
+							<%= chat.elapsed %>
+						</span>
+					</time>
+				</div>
+				
+			</div>
+			
+		</li>
+		<% } %>
+		<% });} %>
+	</ol>
+	
+</div>

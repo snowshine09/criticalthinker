@@ -42,6 +42,7 @@ define(["util", "session", "storage", "require", "templates"], function (util, s
           joined = true;
         }
       }
+      
       peers.emit("new-peer", this);
       if (joined) {
         this.view.notifyJoined();
@@ -368,6 +369,8 @@ define(["util", "session", "storage", "require", "templates"], function (util, s
             console.warn("Error in getUserName(): should return a string (got", name, ")");
             name = null;
           }
+          TogetherJS.avatarname = name;
+          
         }
         if (getUserColor) {
           if (typeof getUserColor == "string") {

@@ -1,14 +1,172 @@
 .editor {
-/** Setting height is also important, otherwise editor wont showup**/
-height: 80px;
-width: 100%;
+	/** Setting height is also important, otherwise editor wont showup**/
+	height: 80px;
+	width: 100%;
 }
 /* .accordion .title, .ui.style.accordion .title */
 .ui.styled.accordion .title {
 	color: rgba(0, 0, 0, 1);
 }
 
+div.claim.active.title {
+	padding-bottom: 0px!important;
+}
+
 .support .editor {
 	border-radius: .2857rem;
 	box-shadow: 0 1px 2px 0 rgba(0,0,0,.05),0 0 0 1px rgba(39,41,43,.15);
 }
+
+.chathistory-dock-right {
+	position: fixed!important;
+	z-index: 10000!important;
+	background-color: #0095dd;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.chathistory-dock-right.btn {
+	padding: 0;
+	bottom: 80px;
+	right: 5px;
+	border-radius: 4px;
+	height: 60px;
+	width: 60px;
+	color:#cce2ff;
+}
+.chathistory-dock-right.btn .pressed{
+	color:#fff;
+}
+
+.chathistory-dock-right.content {
+	padding: 0;
+	bottom: 38px;
+	right: 70px;
+	border-radius: 4px;
+	height: 360px;
+	width: 280px;
+	margin-left: 0;
+	margin-top: 0%;
+	z-index: 10003 !important;
+}
+
+.chathistory.content {
+	overflow: auto;
+	height: 358px;
+	width: 280px;
+	margin-bottom: 5px;
+}
+
+.chatitem {
+	
+	display: flex;
+}
+
+.chatitem.bkg-self-chat > .messages.label {
+	justify-content: flex-end;
+	align-items: flex-end;
+	background-color: #dbedfe;
+	background-image: -webkit-gradient(linear, center bottom, center top, from(#c7defe), to(#e7f1fe)), -webkit-linear-gradient(bottom, #c7defe, #e7f1fe);
+}
+
+.chatitem.bkg-other-chat > .messages.label {
+	
+}
+
+.chatitem > .messages {
+	max-width: 288px;
+	width: 188px;
+}
+
+span.chattext {
+	display: block;
+    float: left;
+}
+div.message-timestamp > i.icon {
+	margin:0 0 0 0!important;
+}
+
+.chat-top-bar {
+	font-weight: bold;
+	font-variant: normal;
+	text-align: center;
+	font-family: openSansRegular, Helvetica;
+	color: #fff;
+	padding: 10px 4px 5px 30px;
+	height: 24px;
+	background: #0095DD;
+	border-radius: 4px 4px 0 0;
+	position: relative;
+}
+/*.chat-top-bar {
+	background: #666;
+	position: relative;
+	overflow: hidden; 
+	background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 800, color-stop(0%, #999999), color-stop(800%, #666666));
+	background: -webkit-radial-gradient(center center, circle closest-side, #999999, #666666 800%);
+	background: -moz-radial-gradient(center center, circle closest-side, #999999, #666666 800%);
+	background: -o-radial-gradient(center center, circle closest-side, #999999, #666666 800%);
+	background: radial-gradient(center center, circle closest-side, #999999, #666666 800%);
+}
+
+
+.chat-top-bar::before {
+	content: "";
+	position: absolute;
+	top: -100%;
+	left: 0;
+	right: 0;
+	bottom: -100%;
+	opacity: 0.25;
+	background: radial-gradient(white, black);
+}
+.chat-top-bar > * {
+  position: relative;
+}
+
+.avatar {
+	width: 40px;
+}
+
+.avatar img {
+	width: 100%;
+	display: block;
+}
+
+.other .avatar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border: 5px solid white;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+}
+
+
+.self .avatar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border: 5px solid white;
+  border-right-color: transparent;
+  border-top-color: transparent;
+}
+
+.self .avatar::after {
+  box-shadow: 1px 1px 2px rgba(black, 0.2);
+}
+.bkg-self-chat {
+	justify-content: flex-end;
+	align-items: flex-end;
+	background-color: #dbedfe;
+	background-image: -webkit-gradient(linear, center bottom, center top, from(#c7defe), to(#e7f1fe)), -webkit-linear-gradient(bottom, #c7defe, #e7f1fe);
+}
+
+.bkg-other-chat {
+	background-color: #dbedfe;
+	background-image: -webkit-gradient(linear, center bottom, center top, from(#c7defe), to(#e7f1fe)), -webkit-linear-gradient(bottom, #c7defe, #e7f1fe);
+}*/
