@@ -1,0 +1,4 @@
+{ "_id" : { "$oid" : "559853b31c127c0513601336" }, "avatarname" : "Brilliant Beaver", "email" : "zhaoyu539@gmail.com", "password" : "1234", "username" : "zhaoyu539" }
+{ "_id" : { "$oid" : "55989e6e1c127c0513601338" }, "username" : "Gracious Gorilla", "email" : "gorilla@gmail.com", "password" : "1234" }
+{ "_id" : { "$oid" : "55989eb51c127c0513601339" }, "avatarname" : "Silent Seal", "email" : "dolphin@gmail.com", "password" : "dddd", "username" : "Diligent Dolphin" }
+{ "_id" : { "$oid" : "55989f411c127c051360133a" }, "username" : "yao.zhao9101", "email" : "yao.zhao9101@gmail.com", "password" : "4321" }
