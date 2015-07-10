@@ -94,6 +94,10 @@ div.claim.active.title {
 	display: flex;
 }
 
+.ui.label .icon.history {
+	margin:0 0 0 0.75em;
+}
+
 
 span.chattext {
 	display: block;
