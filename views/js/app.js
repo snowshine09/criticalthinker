@@ -210,8 +210,17 @@ var proconView = (function($) {
           document.getElementsByClassName('chathistory-dock-right content')[0].innerHTML = data;
 
           $(Chatcontent).show();
+          var closechatBtn = document.getElementsByClassName('closechat')[0];
+        closechatBtn.addEventListener('click', function(e) {
+          $(Chatcontent).hide();
+          $(Chatcontent).removeClass("visible");
+          while(Chatcontent.firstChild) {
+            Chatcontent.removeChild(Chatcontent.firstChild);
+          }
+        }, false);
         });
-        $(Chatcontent).transition('slide left');
+        $(Chatcontent).transition('slide right');
+
       }
       else {
         $(Chatcontent).hide();
@@ -221,8 +230,34 @@ var proconView = (function($) {
         }
       }
     }, false);
+
+
+$.ajax({
+  url: "/getusername",
+  method: "GET",
+  error: function(xhr, desc, err) {
+    console.log(xhr);
+    console.log("Details0: " + desc + "\nError:" + err);
+  },
+})
+.done(function(data){
+  console.log('username is '+data.username);
+  GLOBAL.username = data.username;
+});
+$.ajax({
+  url: "/checkExistAvatar",
+  method: "GET",
+  error: function(xhr, desc, err) {
+    console.log(xhr);
+    console.log("Details0: " + desc + "\nError:" + err);
+  },
+})
+.done(function(data){
+  console.log("checked avatar exists or not! data.resp is ");
+  console.dir(data);
+  if(!data.resp.exist) {
     $.ajax({
-      url: "/getusername",
+      url: "/SaveScreenName/"+TogetherJS.config.get("getUserName"),
       method: "GET",
       error: function(xhr, desc, err) {
         console.log(xhr);
@@ -230,40 +265,16 @@ var proconView = (function($) {
       },
     })
     .done(function(data){
-      console.log('username is '+data.username);
-      GLOBAL.username = data.username;
-    });
-    $.ajax({
-      url: "/checkExistAvatar",
-      method: "GET",
-      error: function(xhr, desc, err) {
-        console.log(xhr);
-        console.log("Details0: " + desc + "\nError:" + err);
-      },
-    })
-    .done(function(data){
-      console.log("checked avatar exists or not! data.resp is ");
+      console.log('save screenname success!'+data);
       console.dir(data);
-      if(!data.resp.exist) {
-        $.ajax({
-          url: "/SaveScreenName/"+TogetherJS.config.get("getUserName"),
-          method: "GET",
-          error: function(xhr, desc, err) {
-            console.log(xhr);
-            console.log("Details0: " + desc + "\nError:" + err);
-          },
-        })
-        .done(function(data){
-          console.log('save screenname success!'+data);
-          console.dir(data);
-          
-        });
-      }
-      else {
-        TogetherJS.config("getUserName", data.resp.avatarname); 
-      }
+
     });
-    
+  }
+  else {
+    TogetherJS.config("getUserName", data.resp.avatarname); 
+  }
+});
+
     //login register
     // var loginForm = document.getElementsByClassName('form userlogin')[0];
     // loginForm.addEventListener('submit',function(e){

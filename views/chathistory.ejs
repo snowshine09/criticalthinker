@@ -1,7 +1,14 @@
 <div class="chathistory">
 	<% if(chats!=null){%>
 	<header class="chat-top-bar">
-		Chat History
+		<div class="chat-title"><span>Chat History</span></div>
+		<div class="ui vertical divider"></div>
+		<div class="closechat">
+			<button class="ui button close-chat">
+				<i class="remove icon"></i>
+			</button>
+		</div>
+		
 	</header>
 	<ol class="chathistory content conversation ui segment">
 		<% chats.forEach(function(chat){ %>
@@ -14,8 +21,10 @@
 					<span data-id=<%- chat['_id'].str %> class="chattext"><%=chat.text%></span>
 				</div>
 				<div class="message-timestamp inline field">
-					<i class="history icon"></i>
+					
 					<time datetime=<%= chat.time.getFullYear()+'-'+chat.time.getMonth()+'-' + chat.time.getDate() + 'T'+chat.time.getHours() + ':' + chat.time.getMinutes() %> >
+						<span class="username"><%= chat.username+ " • " %> </span>
+						<i class="history icon"></i>
 						<span class="time-elapsed">
 							<%= chat.elapsed %>
 						</span>
@@ -24,9 +33,9 @@
 				
 			</div>
 			<div class="userinfo chatheader">
-				<div class="ui small header right">
-					<img src="/images/avatar/large/chris.jpg" class="ui circular image user right">
-					<span class="username"><%= chat.username %></span>
+				<div class="ui small header right avatar">
+					<img src="/avatar/default-avatar.jpg" class="ui circular image user right">
+					
 				</div>
 			</div>
 			
@@ -35,9 +44,9 @@
 		<% } else { %>
 		<li class="ui vertical segment chatitem bkg-other-chat">
 			<div class="userinfo chatheader">
-				<div class="ui small header">
-					<img src="/images/avatar/large/chris.jpg" class="ui circular image user">
-					<span class="username"><%= chat.username %></span>
+				<div class="ui small header avatar">
+					<img src="/avatar/defaultAvatar.gif" class="ui circular image user">
+					
 				</div>
 			</div>
 			<div class="messages ui pointing left label">
@@ -45,8 +54,10 @@
 					<div data-id=<%- chat['_id'].str %> class="chattext"><%=chat.text%></div>
 				</div>
 				<div class="message-timestamp inline field">
-					<i class="history icon"></i>
+					
 					<time datetime=<%= chat.time.getFullYear()+'-'+chat.time.getMonth()+'-' + chat.time.getDate() + 'T'+chat.time.getHours() + ':' + chat.time.getMinutes() %> >
+						<span class="username"><%= chat.username %></span>
+						<i class="history icon"></i>
 						<span class="time-elapsed">
 							<%= chat.elapsed %>
 						</span>

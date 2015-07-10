@@ -15,6 +15,7 @@ var express = require('express'),
 mongoose.connect(configDB.url);
 require('./config/passport')(passport);
 app.use('/', express.static(path.join(__dirname, 'views')));
+app.use( express.static( "public" ) );
 
 
 // var ProCon = require('./app/models/procon.js');
