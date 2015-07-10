@@ -40,7 +40,7 @@ var timeSince = function(date) {
     intervalType += 's';
   }
 
-  return interval + ' ' + intervalType + 'ago';
+  return interval + ' ' + intervalType.toString() + ' ago'.toString();
 };
 module.exports = function(app, passport) {
   app.get('/', function(req, res) {
