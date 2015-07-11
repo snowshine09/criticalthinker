@@ -83,7 +83,7 @@ module.exports = function(app, passport) {
    ProCon.findOne({'topic': topic}, function(err, data){
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(data));
-    console.log("this is /all_procons/:topic(get) stringified data: " + data);
+    console.log("this is /all_procons/:topic(get) stringified data: " );//+ data);
     console.log(data._id);
     delete data._id;
     console.log(data._id);
@@ -135,6 +135,10 @@ module.exports = function(app, passport) {
           value: req.user.toObject().username,
           writable: true
         });
+        Object.defineProperty(data[i], 'avatarname', {
+          value: req.user.toObject().avatarname,
+          writable: true
+        });
         // console.log('returned func value from timeSince: '+temp);
         
         // // Object.assign(data[i].time, timeSince(data[i].time));
@@ -147,7 +151,7 @@ module.exports = function(app, passport) {
       // res.setHeader('Content-Type', 'application/json');
       // // res.send(JSON.stringify(result));
       // res.send(result);
-      console.log("this is /chathistory/:topic(get) stringified data: " + data);
+      console.log("this is /chathistory/:topic(get) stringified data: ");// + data);
     });
 });
 
@@ -209,8 +213,10 @@ app.get('/home', isLoggedIn, function (req, res) {
 });
 
 app.get('/getusername',function(req, res){
-  var usrname = req.user.toObject().username;
-  res.send({username:usrname});
+  var usrname = req.user.toObject().username, avatar = req.user.toObject().avatarname;
+  console.log("req.user includes :");
+  console.dir(req.user.toObject());
+  res.send({username:usrname,avatarname:avatar});
 })
 
 app.get('/checkExistAvatar', function(req, res){
