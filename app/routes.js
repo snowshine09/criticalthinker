@@ -135,10 +135,7 @@ module.exports = function(app, passport) {
           value: req.user.toObject().username,
           writable: true
         });
-        Object.defineProperty(data[i], 'avatarname', {
-          value: req.user.toObject().avatarname,
-          writable: true
-        });
+        
         // console.log('returned func value from timeSince: '+temp);
         
         // // Object.assign(data[i].time, timeSince(data[i].time));
