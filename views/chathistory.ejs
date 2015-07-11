@@ -56,7 +56,7 @@
 				<div class="message-timestamp inline field">
 					
 					<time datetime=<%= chat.time.getFullYear()+'-'+chat.time.getMonth()+'-' + chat.time.getDate() + 'T'+chat.time.getHours() + ':' + chat.time.getMinutes() %> >
-						<span class="username"><%= chat.username %></span>
+						<span class="username"><%= chat.avatarname+ " • ".toString() %> </span>
 						<i class="history icon"></i>
 						<span class="time-elapsed">
 							<%= chat.elapsed %>
