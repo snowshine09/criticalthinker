@@ -6122,7 +6122,8 @@ define('chat',["require", "jquery", "util", "session", "ui", "templates", "playb
       text: message,
       messageId: messageId,
       topic: GLOBAL.topic,
-      username: GLOBAL.username
+      username: GLOBAL.username,
+      avatarname:GLOBAL.avatarname
     });
     ui.chat.text({
       text: message,

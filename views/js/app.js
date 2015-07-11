@@ -243,6 +243,7 @@ $.ajax({
 .done(function(data){
   console.log('username is '+data.username);
   GLOBAL.username = data.username;
+  GLOBAL.avatarname = data.avatarname;
 });
 $.ajax({
   url: "/checkExistAvatar",
