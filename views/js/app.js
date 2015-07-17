@@ -23,6 +23,7 @@
       proconData = data;
       GLOBAL.savedData = data;
       GLOBAL.topic = data.topic;
+      GLOBAL.helloLogin = true;
       console.log(proconData);
     });
   }
@@ -132,7 +133,6 @@ var proconView = (function($) {
     proconDataRef = proconData;
     
     GLOBAL.timeout = null;
-    // GLOBAL.Diff
     render();
     registerEvents();
   }
@@ -203,21 +203,16 @@ var proconView = (function($) {
           method: "GET"
         })
         .done(function(data){
-          // Chatcontent.appendChild(document.createTextNode(data));
-          // var result = new EJS({url:'chathistory.ejs'}).render({chats:data});
-          // var ejs = require('ejs');
-          // var result = ejs.render('chathistory', {chats:data});
           document.getElementsByClassName('chathistory-dock-right content')[0].innerHTML = data;
-
           $(Chatcontent).show();
           var closechatBtn = document.getElementsByClassName('closechat')[0];
-        closechatBtn.addEventListener('click', function(e) {
-          $(Chatcontent).hide();
-          $(Chatcontent).removeClass("visible");
-          while(Chatcontent.firstChild) {
-            Chatcontent.removeChild(Chatcontent.firstChild);
-          }
-        }, false);
+          closechatBtn.addEventListener('click', function(e) {
+            $(Chatcontent).hide();
+            $(Chatcontent).removeClass("visible");
+            while(Chatcontent.firstChild) {
+              Chatcontent.removeChild(Chatcontent.firstChild);
+            }
+          }, false);
         });
         $(Chatcontent).transition('slide right');
 
@@ -231,34 +226,8 @@ var proconView = (function($) {
       }
     }, false);
 
-
-$.ajax({
-  url: "/getusername",
-  method: "GET",
-  error: function(xhr, desc, err) {
-    console.log(xhr);
-    console.log("Details0: " + desc + "\nError:" + err);
-  },
-})
-.done(function(data){
-  console.log('username is '+data.username);
-  GLOBAL.username = data.username;
-  GLOBAL.avatarname = data.avatarname;
-});
-$.ajax({
-  url: "/checkExistAvatar",
-  method: "GET",
-  error: function(xhr, desc, err) {
-    console.log(xhr);
-    console.log("Details0: " + desc + "\nError:" + err);
-  },
-})
-.done(function(data){
-  console.log("checked avatar exists or not! data.resp is ");
-  console.dir(data);
-  if(!data.resp.exist) {
     $.ajax({
-      url: "/SaveScreenName/"+TogetherJS.config.get("getUserName"),
+      url: "/getusername",
       method: "GET",
       error: function(xhr, desc, err) {
         console.log(xhr);
@@ -266,49 +235,150 @@ $.ajax({
       },
     })
     .done(function(data){
-      console.log('save screenname success!'+data);
-      console.dir(data);
-
+      console.log('username is '+data.username);
+      GLOBAL.username = data.username;
+      GLOBAL.avatarname = data.avatarname;
     });
+    $.ajax({
+      url: "/checkExistAvatar",
+      method: "GET",
+      error: function(xhr, desc, err) {
+        console.log(xhr);
+        console.log("Details0: " + desc + "\nError:" + err);
+      },
+    })
+    .done(function(data){
+      console.log("checked avatar exists or not! data.resp is ");
+      console.dir(data);
+      if(!data.resp.exist) {
+        $.ajax({
+          url: "/SaveScreenName/"+TogetherJS.config.get("getUserName"),
+          method: "GET",
+          error: function(xhr, desc, err) {
+            console.log(xhr);
+            console.log("Details0: " + desc + "\nError:" + err);
+          },
+        })
+        .done(function(data){
+          console.log('save screenname success!'+data);
+          console.dir(data);
+
+        });
+      }
+      else {
+        TogetherJS.config("getUserName", data.resp.avatarname); 
+      }
+    });
+
+    document.getElementsByClassName('helptour')[0].addEventListener('click',function(e){
+      var intro = introJs();
+      intro.setOptions({
+        steps: [
+        { 
+          intro: "Welcome to Critical Thinker! Let's first take a brief look at how to use the tool."
+        },
+        {
+          element: document.querySelector('.welcome'),
+          intro: "After you log in, the user ID is only visible to you, and your group member would see your system-generated nickname"
+        },
+        // {
+        //   element: document.querySelectorAll('.topic-bar')[0],
+        //   intro: "You can select topic from here, but for now, your task is to discuss over the topic on the right to be forgotten",
+        //   position: 'left'
+        // },
+        {
+          element: document.querySelectorAll('.proconpair')[0],
+          intro: "The PRO and CON arguments are structured in pair correspondingly"
+        },
+        {
+          element: document.querySelectorAll('.rightpadding.two')[0],
+          intro: "You can add or delete with the plus or cross button"
+        },
+        {
+          element: document.querySelectorAll('.pro.seven.column')[0],
+          intro: 'The left panel is where PRO arguments are put, whereas the right panel is the place for CON arguments',
+          position: 'left'
+        },
+        {
+          element: document.querySelectorAll('.editor.ace_editor')[0],
+          intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the hand",
+          position: 'bottom'
+        },
+        {
+          element: document.querySelectorAll('.claimIcon.row')[0],
+          intro: 'Click the Hand to add more backings to back up the above proposition'
+        },
+        {
+          element: document.querySelectorAll('.supporting')[0],
+          intro: "These are where you write the backings with facts, evidences, reasoning or examples",
+          position:'bottom'
+        },
+        {
+          element: document.querySelectorAll('.supportIcon.row')[0],
+          intro: "Click the cross button to delete the piece of backing"
+        },
+        {
+          element:document.querySelector('#togetherjs-chat-button'),
+          intro: "Click here to open the Chat Window to talk with your group member(s)"
+        },
+        {
+          element: document.querySelectorAll('.chathistory-dock-right.btn')[0],
+          intro: "Click here to browse the chat history that occurred before"
+        },
+        {
+          intro: "Thanks for taking the brief tour, now embark on the journey with Critical Thinker"
+        }
+        ]
+      });
+      intro.setOption('tooltipPosition', 'auto');
+      intro.setOption('positionPrecedence', ['left', 'right', 'bottom', 'top']);
+
+      intro.start();
+    //   .onbeforechange(function(targetElement) {
+    //   $(".steps").hide();
+    //   $(".left").css("float", "left");
+    //   $("input").removeClass("error");
+    //   $(".right").hide();
+    //   switch($(targetElement).attr("data-step")) {
+    //     case "2":
+    //       $(".flexi_form").hide();
+    //       $(targetElement).show();
+    //       break;
+    //     case "3":
+    //       $("input").addClass("error");
+    //       $(targetElement).show();
+    //       break;
+    //     case "4":
+    //       $(".left").css("float", "none");
+    //       $(targetElement).show();
+    //       break;
+    //     case "5":
+    //       $(".right").show();
+    //       $(targetElement).show();
+    //       break;
+    //   }
+    // });
+
+    }, false);
+    
   }
-  else {
-    TogetherJS.config("getUserName", data.resp.avatarname); 
+
+  function createTitle(content, argumentType) {
+    var title = document.createElement('div');
+    title.className = argumentType + ' ' + 'active title';
+    title.setAttribute("data-content", "Click to expand or collapse");
+    var icon = document.createElement('i');
+    icon.className = 'dropdown icon';
+    $(title).popup({hoverable:true});
+    title.appendChild(icon);
+    title.appendChild(document.createTextNode(content));
+
+    return title;
   }
-});
 
-    //login register
-    // var loginForm = document.getElementsByClassName('form userlogin')[0];
-    // loginForm.addEventListener('submit',function(e){
-    //   e.preventDefault();
-    //   var username = document.getElementsByClassName('userlogin username')[0].innerHTML,
-    //   pwd = document.getElementsByClassName('userlogin userpwd')[0].innerHTML;
-    //   $.ajax({
-    //     url: "/userlogin",
-    //     method: "POST",
-    //     data:{username:username, pwd:pwd}
-    //   })
-    //   .done(function(data){
-    //     console.log("login sucess");
-    //   })
-    // },false);
-}
-
-function createTitle(content, argumentType) {
-  var title = document.createElement('div');
-  title.className = argumentType + ' ' + 'active title';
-  title.setAttribute("data-content", "Click to expand or collapse");
-  var icon = document.createElement('i');
-  icon.className = 'dropdown icon';
-  $(title).popup({hoverable:true});
-  title.appendChild(icon);
-  title.appendChild(document.createTextNode(content));
-
-  return title;
-}
-
-function createContent(contentString, side, proconIndex, index, argumentType) {
-  var content = document.createElement('div');
-  content.className = argumentType + ' ' + 'active content';
+  function createContent(contentString, side, proconIndex, index, argumentType) {
+    var content = document.createElement('div');
+    content.className = argumentType + ' ' + 'active content';
 
     // create Ace editor
     var editor = document.createElement('div');

@@ -3,15 +3,21 @@
 <head>
   <title>Critical Thinker</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.12.0/semantic.min.css" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/intro.js/1.0.0/introjs.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/intro.js/1.0.0/introjs-rtl.min.css">
+
   <link rel="stylesheet" href="./css/base.css" />
   <link rel="stylesheet" href="./css/proncon.css" />
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
   <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.12.0/semantic.min.js"></script>
+  <script type = 'text/javascript' src="https://cdn.jsdelivr.net/intro.js/1.0.0/intro.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js"></script>
 
   
   <script>
-    var DEFAULT_NICKNAMES = ["Friendly Fox", "Brilliant Beaver", "Observant Owl", "Gregarious Giraffe", "Wild Wolf", "Silent Seal", "Wacky Whale", "Curious Cat", "Intelligent Iguana"];
+    var DEFAULT_NICKNAMES = ["Friendly Fox", "Brilliant Beaver", "Observant Owl", "Gregarious Giraffe", "Wild Wolf", "Silent Seal", "Wacky Whale", "Curious Cat", "Intelligent Iguana"],
+    DEFAULT_COLORS = ["rgba(255, 204, 0,0.58)","rgba(102, 153, 255,0.58)", "rgba(51, 153, 102, 0.58)", "rgba(255, 102, 255, 0.58)", "rgba(255, 153, 51,0.58)"];
     var pickRandom = function (array) {
       return array[Math.floor(Math.random() * array.length)];
     };
@@ -26,7 +32,7 @@
     //     $("#togetherjs-container").append($(".chathistory-dock-right.content"));
     //   }
     // };
-    // TogetherJSConfig_getUserColor = function () {return '#ff00ff';};
+    TogetherJSConfig_getUserColor = pickRandom(DEFAULT_COLORS);
 
   </script>
   <script src="./js/togetherjs-min.js"></script>
@@ -36,8 +42,14 @@
   <script src="./js/sync.js"></script>
 </head>
 <body>
+  <div class="tool_container">
+    <!-- <div class="flexi_form_title">
+      <h1 data-step="1" data-intro="This is flexible forms tour">Flexible Forms</h1>
+      <a id="flexi_form_start" href="javascript:void(0);">Start Tour</a>
+    </div> -->
+  </div>
   <div class="ui inverted menu">
-    <div class="item">
+    <div class="item welcome">
       Welcome to Critical Thinker<string> <%= user ? ', '+user.username : ' ' %> </string>!
     </div>
     <!-- <div class="item">
@@ -46,10 +58,13 @@
     <div class="item right">
       <a href='/logout' class='ui red label'>Logout</a>
     </div>
+    <div class="item right">
+      <button class="ui button helptour"><i class="help icon"></i></button>
+    </div>
   </div>
   
   
-  <div class='ui segment'>
+  <div class='ui segment topic-bar'>
     <div class="ui teal ribbon label">
       Topics:
     </div>
@@ -64,21 +79,21 @@
     
   </div>
 
-  <div class="ui grid">
+  <div class="ui grid all-operator">
     <div class='row'>
       <div id='expandAllButton' class='ui large button'> Expand All </div>
       <div id='callapseAllButton' class='ui large button'> Collapse All </div>
       <div id='addProConButton' class='ui large button'>Add ProCon</div>
     </div>
     <div class='row'>
-      <div class="two wide column"></div>
-      <div class="seven wide column">
+      <div class="one wide column"></div>
+      <div class="six wide column">
         <h1 class='ui header'>Pro</h1>
       </div>
-      <div class="seven wide column">
+      <div class="five wide column">
         <h1 class='ui header'>Con</h1>
       </div>
-      <div class="two wide column"></div>
+      <div class="four wide column"></div>
 
     </div>
   </div>

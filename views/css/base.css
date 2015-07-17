@@ -1,3 +1,7 @@
+body {
+	overflow-x: hidden;
+	overflow-y: scroll; 
+}
 .editor {
 	/** Setting height is also important, otherwise editor wont showup**/
 	height: 80px;
@@ -17,8 +21,35 @@ div.claim.active.title {
 	box-shadow: 0 1px 2px 0 rgba(0,0,0,.05),0 0 0 1px rgba(39,41,43,.15);
 }
 
+.ui.inverted.menu {
+	margin: 0px!important;
+}
+
+.topic-bar {
+	margin-left: 1em!important;
+	margin-top: 0px!important;
+	padding-top: 1px!important;
+	padding-bottom: 2px!important;
+}
+
+.all-operator {
+	margin-left: 10px!important;
+}
+
+.all-operator > .row {
+	padding-top: 8px!important;
+}
+/* introjs */
+span.introjs-helperNumberLayer {
+	width:30px;
+	height: 30px;
+}
 /* together js series*/
-/*button*/
+
+/*cursor udpate*/
+.togetherjs-cursor.togetherjs.togetherjs-scrolled-normal {
+	opacity:0.58;
+}
 
 
 .chathistory-dock-right {
