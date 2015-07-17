@@ -6839,7 +6839,11 @@ define('cursor',["jquery", "ui", "util", "session", "elementFinder", "tinycolor"
 
   session.hub.on("cursor-update", function (msg) {
     if (msg.sameUrl) {
-      Cursor.getClient(msg.clientId).updatePosition(msg);
+        if(GLOBAL.helloLogin)
+            {
+                Cursor.getClient(msg.clientId).updatePosition(msg);
+                GLOBAL.helloLogin = false;
+            }
     } else {
       // FIXME: This should be caught even before the cursor-update message,
       // when the peer goes to another URL
