@@ -1,4 +1,4 @@
-#products > input {
+#topics > input {
     font-size: 16px;
     padding: 12px 16px;
     width: 326px;
@@ -27,4 +27,12 @@
     border-right: 1px solid  #dcdcdc;
     width: 220px;
     padding: 10px;
+}
+
+span.editing.invisible, span.display.invisible {
+    display:none;
+}
+
+div.left.icon.input {
+    margin:inherit;
 }
