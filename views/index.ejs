@@ -5,7 +5,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.12.0/semantic.min.css" />
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/intro.js/1.0.0/introjs.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/intro.js/1.0.0/introjs-rtl.min.css">
 
   <link rel="stylesheet" href="./css/base.css" />
   <link rel="stylesheet" href="./css/proncon.css" />
@@ -42,12 +41,6 @@
   <script src="./js/sync.js"></script>
 </head>
 <body>
-  <div class="tool_container">
-    <!-- <div class="flexi_form_title">
-      <h1 data-step="1" data-intro="This is flexible forms tour">Flexible Forms</h1>
-      <a id="flexi_form_start" href="javascript:void(0);">Start Tour</a>
-    </div> -->
-  </div>
   <div class="ui inverted menu">
     <div class="item welcome">
       Welcome to Critical Thinker<string> <%= user ? ', '+user.username : ' ' %> </string>!
@@ -61,6 +54,9 @@
     <div class="item right">
       <button class="ui button helptour"><i class="help icon"></i></button>
     </div>
+    <div class="item right">
+      <button class="ui olive button usersetting"><i class="user icon"></i><a href='/instructor'>Switch View</a></button>
+    </div>
   </div>
   
   
@@ -71,9 +67,11 @@
     <div class="ui floating dropdown labeled search icon button">
       <i class="tasks icon"></i>
       <span class="text">Select Topics</span>
-      <div class="menu">
-        <div class="item">The right to be forgotten</div>
-        <div class="item">Test</div>
+      <div class="topic menu">
+        <% for(var i=0; i<topics.length; i++) {%>
+        <div class = "topic item"><%= topics[i] %></div>
+        <% } %>
+        
       </div>
     </div>
     

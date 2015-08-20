@@ -1,5 +1,7 @@
-var ProCon = require('../app/models/procon.js'), Chatmsg = require('../app/models/chatmsg.js');
-var User = require('./models/user.js');
+var ProCon = require('../app/models/procon.js'), 
+Chatmsg = require('../app/models/chatmsg.js'), 
+User = require('./models/user.js');
+
 var timeSince = function(date) {
   if (typeof date !== 'object') {
     date = new Date(date);
@@ -49,17 +51,27 @@ module.exports = function(app, passport) {
     //   user: req.user | null,
     //   chats: null
     // });
-  });
+});
+  
+  app.get('/all_procons/:topic', function(req, res) {
+   var topic = req.params.topic;
+   ProCon.findOne({'topic': topic}, function(err, data){
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(data));
+    console.log("this is /all_procons/:"+ topic+"(get) stringified data: " );//+ data);
 
-  app.get('/all_procons', function(req, res) {
-    ProCon.find({}, function(err, data) {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(data));
-      console.log("this is /all_procons stringified data: " + data);
-    });
-  });
+ });
+ });
 
-  app.get('/chathistory', function(req, res) {
+  // app.get('/all_procons', function(req, res) {
+  //   ProCon.find({}, function(err, data) {
+  //     res.setHeader('Content-Type', 'application/json');
+  //     res.send(JSON.stringify(data));
+  //     console.log("this is /all_procons stringified data: " + data);
+  //   });
+  // });
+
+app.get('/chathistory', function(req, res) {
     // Chatmsg.find({}, function(err, data) {
 
     //   // var template_para = {};
@@ -76,43 +88,88 @@ module.exports = function(app, passport) {
     //   res.setHeader('Content-Type', 'application/json');
     //   res.send(JSON.stringify(result));
     // });
-  });
-  
-  app.get('/all_procons/:topic', function(req, res) {
-   var topic = req.params.topic;
-   ProCon.findOne({'topic': topic}, function(err, data){
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(data));
-    console.log("this is /all_procons/:topic(get) stringified data: " );//+ data);
+});
+
+
+
+app.put('/all_procons/:topic', function(req, res) {
+  console.log('entering app.put');
+  var topic = req.params.topic;
+  var data = req.body;
+  console.log('in server put');
+  console.log(req.body);
+  console.log(topic);
+  if(data._id != undefined){
     console.log(data._id);
     delete data._id;
     console.log(data._id);
-  });
- });
-  
-  app.put('/all_procons/:topic', function(req, res) {
-    console.log('entering app.put');
-    var topic = req.params.topic;
-    var data = req.body;
-    console.log('in server put');
-    console.log(req.body);
-    console.log(topic);
-    if(data._id != undefined){
-      console.log(data._id);
-      delete data._id;
-      console.log(data._id);
+  }
+
+  ProCon.update({'topic':topic}, data, {upsert: true}, function(err, raw){
+    if(err){
+      console.log('error in updating');
+      console.log(err);
     }
-    
-    ProCon.update({'topic':topic}, data, {upsert: true}, function(err, raw){
-      if(err){
-        console.log('error in updating');
-        console.log(err);
-      }
-      console.log('The raw response from Mongo was ', raw);
-    });
-    console.log("this is /all_procons/:topic(put) stringified data: " + data);
-    res.send(200, {"youKnow":"putter"});
+    console.log('The raw response from Mongo was ', raw);
   });
+  console.log("this is /all_procons/:topic(put) stringified data: " + data);
+  res.send(200, {"youKnow":"putter"});
+});
+
+
+app.put('/ChangeTopic',function(req, res){
+  var oldtopic = req.body.oldtopic, newtopic = req.body.newtopic;
+  console.dir(req.body);
+  console.log('changing topic in routes: topics are old and new'+oldtopic+newtopic);
+  console.dir(req.user);
+  var items = req.user.toObject().topics;
+  var index = items.indexOf(oldtopic);
+  if (index != -1) {
+    if (newtopic)items[index] = newtopic;
+    else items.splice(index,1);
+    console.log('this is-----'+newtopic);
+    console.dir(items);
+  }
+  else {
+  console.log("The user "+req.user.toObject().username+" does not have the updated old topic --- insert");//aqeqwqeqeq
+  items.push(newtopic);
+}
+
+req.user.topics = items;
+
+  if(!newtopic){//remove topic
+    User.update({'topics': oldtopic},{topics: items} ,{upsert:false,multi:true},function(err,raw){
+      if(err) {
+        console.log("error:" + err);
+        return handleError(err);
+      }
+      console.log('Removing User topic: The updated raw response from Mongo was ', raw);
+    });
+  }
+  else {
+    console.log('new topics are ');
+    console.dir(items);
+    ProCon.update({'topic': oldtopic}, {'topic':newtopic},{upsert: false, multi: true}, function(err, raw){
+      if(err) return handleError(err);
+      console.log('Updating PROCON topic: The updated raw response from Mongo was ', raw);    
+    });
+    User.update({'topics': oldtopic},{ 'topics': items} ,{upsert:false, multi:true},function(err,raw){
+      if(err) return handleError(err);
+      console.log('Updating UserTopic The updated raw response from Mongo was ', raw);
+    });
+    if(!oldtopic) User.update({},{'topics': items},{upsert:false, multi:true}, function(err,raw){
+      if(err) return handleError(err);
+      console.log("added new topic and propogated to all "+raw.n);
+    })
+}
+  res.send({topic:newtopic});
+});
+
+  // app.put('/all_procons',function(req, res){
+  //   res.json({message:"this is the case without topic suffix"});
+  // });
+
+
 
   //retrieve saved chat history
   app.get('/chathistory/:topic', function(req, res){
@@ -122,8 +179,8 @@ module.exports = function(app, passport) {
       //     value: req.user.toObject().username,
       //     writable: true
       //   });
-      console.dir(data);
-      for(var i = 0; i<data.length; i++){
+    console.dir(data);
+    for(var i = 0; i<data.length; i++){
         // console.log('loop ING'+typeof data+' ' +timeSince(data[i].time));
         // console.dir(req.user.toObject());
         var temp = timeSince(data[i].time);
@@ -135,13 +192,8 @@ module.exports = function(app, passport) {
           value: req.user.toObject().username,
           writable: true
         });
-        
-        // console.log('returned func value from timeSince: '+temp);
-        
-        // // Object.assign(data[i].time, timeSince(data[i].time));
-        // console.log("this is after data[i] changing"+data[i].time);
       }
-      console.log('data[0].time = '+data[0].time);
+      if(data.length)console.log('data[0].time = '+data[0].time);
       var result = res.render('chathistory.ejs', {chats:data});
       console.log("data is " + data);
       console.dir(result);
@@ -149,7 +201,7 @@ module.exports = function(app, passport) {
       // // res.send(JSON.stringify(result));
       // res.send(result);
       console.log("this is /chathistory/:topic(get) stringified data: ");// + data);
-    });
+});
 });
 
 app.get('/top_names', function(req, res) {
@@ -169,8 +221,17 @@ app.get('/changetemplate',function(req, res){
     user: req.user
   });
 });
-app.get('/instructor', function(req, res) {
-  res.render('instructor.ejs');
+
+app.all('/instructor', function(req, res) {
+  if (!req.user) { return res.redirect('/login'); }
+  User.findOne({username:req.user.username},function(err,data){
+    if(err) handleError(err);
+    res.render('instructor.ejs',{
+      user:req.user,
+      topics: data.topics
+    });
+  });
+  
 });
 
 app.get('/qna', function(req, res){
@@ -204,24 +265,28 @@ app.post('/userlogin', function(req, res, next){
 
 app.get('/home', isLoggedIn, function (req, res) {
   console.log("home in router is " + req.user);
-  res.render('index.ejs', {
-    user: req.user.toObject()
-  });
+  User.findOne({username: req.user.toObject().username},'topics',function(err,user){
+    if(err) handleError(err);
+    console.dir(user.topics[0]);
+    res.render('index.ejs', {
+      user: req.user.toObject(),
+      topics:user.topics
+    });
+  })
+  
 });
 
 app.get('/getusername',function(req, res){
   var usrname = req.user.toObject().username, avatar = req.user.toObject().avatarname;
   console.log("req.user includes :");
   console.dir(req.user.toObject());
-  res.send({username:usrname,avatarname:avatar});
+  res.send({username:usrname,avatarname:avatar, topics:req.user.toObject().topics});
 })
 
 app.get('/checkExistAvatar', function(req, res){
   User.findOne({username:req.user.toObject().username}, 'avatarname',function(err, user){
     if(err) handleError(err);
     var resp = {};
-    // console.log("raw from CheckAvatar is "+user);
-    // console.dir(user);
     if(user.toObject().avatarname && typeof user.toObject().avatarname === "string"){
       resp.exist = true;
       resp.avatarname = user.toObject().avatarname;
@@ -238,30 +303,6 @@ app.get('/SaveScreenName/:avatarname', function(req,res) {
   console.log("req.user is "+ req.user);
   console.log("saving screenName "+req.user.toObject().username+ " to " + req.params.avatarname);
   var usrname = req.user.toObject().username;
-  // User.findOne({
-  //   'username': req.user.toObject().username, 
-  // }, function(err, user) {
-  //   if (err) {
-  //     console.log("error in user findOne");
-  //     return done(err);
-  //   }
-
-  //   if (!user) {
-  //     console.log('User Not Found with username '+username);
-  //     return done(null, false);
-  //   }
-  //   // user.avatarname = req.params.avatarname;
-  //   Object.defineProperty(user, 'avatarname', {
-  //     value: req.params.avatarname,
-  //     writable: true
-  //   });
-  //   user.save(function (err) {
-  //     if (err) return console.log(err);
-  //     console.log("save sucess");
-  //     res.send(user);
-  //   });
-
-  // });
   User.update({'username':req.user.toObject().username},{avatarname:req.params.avatarname},{upsert:true},function(err,raw){
     if(err) return handleError(err);
     console.log('The  updated raw response from Mongo was ', raw);
@@ -275,8 +316,6 @@ app.get('/logout', function(req, res) {
   req.logout();
   res.redirect('/login');
 });
-
-
 }
 
 function isLoggedIn(req, res, next) {

@@ -10,98 +10,133 @@
  var proconModel = (function($) {
   // Load procon data from server
   var proconData = {},
-  topic = "beast",
   dataReady = false;
+  // GLOBAL.topic = $(".topic-bar span").text() == "Select Topics" ? "The right to be forgotten":$(".topic-bar span").text();
 
-  function fetchData() {
+  function fetchData(secondcallback, callback) {
+    if($(".topic-bar span").length==0 || $(".topic-bar span").text() === "Select Topics"){
+      temp = "The right to be forgotten";
+    }
+    else {
+      temp = $(".topic-bar span").text();
+    }
+    dataReady = false;
+    Object.defineProperty(GLOBAL, 'topic', {
+      value: temp,
+      writable: true
+    });
+    callback(secondcallback);
+  }
+
+
+  function fetchDatawTopic(callback){
     $.ajax({
-      url: "/all_procons/"+topic,
+      url: "/all_procons/"+GLOBAL.topic,
       method: "GET"
     })
     .done(function(data) {
       dataReady = true;
       proconData = data;
       GLOBAL.savedData = data;
-      GLOBAL.topic = data.topic;
       GLOBAL.helloLogin = true;
       console.log(proconData);
+      if(typeof callback != "undefined" && callback){
+        callback();
+      }
     });
-  }
-
-  function init() {
-    console.log('procon init');
-    fetchData();
-  }
-
-  function createEmptyClaim() {
-    var newEmptyClaim = {
-      content: "",
-      support: []
-    };
-
-    return newEmptyClaim;
-  }
-
-  function createEmptySupport() {
-    var newEmptySupport = {
-      content: ""
-    };
-
-    return newEmptySupport;
-  }
-
-  function addProCon() {
-    console.log('addProCon');
-    proconData.pro.unshift(createEmptyClaim());
-    proconData.con.unshift(createEmptyClaim());
-    updateServerProCon();
-  }
-
-  function addSupport(side, claimIdx) {
-    console.log('addSupport');
-    proconData[side][claimIdx].support.unshift(createEmptySupport());
-    updateServerProCon();
-  }
-
-  function deleteProConAtIndex(idx) {
-    console.log('deleteProConAtIndex');
-    proconData.pro.splice(idx, 1);
-    proconData.con.splice(idx, 1);
-    updateServerProCon();
-
-  }
-
-  function deleteSupport(side, claimIdx, supportIdx) {
-    console.log('deleteSupport');
-    proconData[side][claimIdx].support.splice(supportIdx, 1);
-    updateServerProCon();
-  }
+    // var interval = setInterval(function () {
+    //   if (dataReady === true) {
+    //     clearInterval(interval);
+    //     return proconData;
+    //   }
+    // }, 5);
+}
+function init(callback) {
+  console.log('procon init');
+  fetchData(callback,fetchDatawTopic);
   
-  function updateProConAtIndex(side, claimIdx, content) {
-    console.log('updateProConAtIndex');
-    proconData[side][claimIdx].content = content;
-    updateServerProCon();
-  }
+}
 
-  function updateSupportingAtIndex(side, claimIdx, index, content) {
-   console.log('updateSupportingAtIndex');
-   proconData[side][claimIdx].support[index].content = content;
-   updateServerProCon();
- }
+function createEmptyClaim() {
+  var newEmptyClaim = {
+    content: "",
+    support: []
+  };
 
- function getDataReady() {
+  return newEmptyClaim;
+}
+
+function createEmptySupport() {
+  var newEmptySupport = {
+    content: ""
+  };
+
+  return newEmptySupport;
+}
+
+function addProCon() {
+  console.log('addProCon');
+  proconData.pro.push(createEmptyClaim());
+  proconData.con.push(createEmptyClaim());
+  updateServerProCon();
+}
+
+function addSupport(side, claimIdx) {
+  console.log('addSupport');
+  proconData[side][claimIdx].support.unshift(createEmptySupport());
+  updateServerProCon();
+}
+
+function deleteProConAtIndex(idx) {
+  console.log('deleteProConAtIndex');
+  proconData.pro.splice(idx, 1);
+  proconData.con.splice(idx, 1);
+  updateServerProCon();
+
+}
+
+function deleteSupport(side, claimIdx, supportIdx) {
+  console.log('deleteSupport');
+  proconData[side][claimIdx].support.splice(supportIdx, 1);
+  updateServerProCon();
+}
+
+function updateProConAtIndex(side, claimIdx, content) {
+  console.log('updateProConAtIndex');
+  proconData[side][claimIdx].content = content;
+  updateServerProCon();
+}
+
+function updateSupportingAtIndex(side, claimIdx, index, content) {
+  console.log('updateSupportingAtIndex');
+  proconData[side][claimIdx].support[index].content = content;
+  updateServerProCon();
+}
+
+function getDataReady() {
   return dataReady;
 }
 
+function resetDataReady(){
+  dataReady = false;
+}
+
 function getProConData() {
-  fetchData();
-  return proconData;
+  dataReady = false;
+  fetchData(null,fetchDatawTopic);
+    // var interval = setInterval(function () {
+    //   if (dataReady === true) {
+    //     clearInterval(interval);
+    //     return proconData;
+    //   }
+    // }, 5);
 }
 
 function updateServerProCon() {
+  var temp = "/all_procons/"+GLOBAL.topic;
   console.log("entering ajax!! The current ProConData is " + proconData);
   $.ajax({
-    url: "/all_procons/"+topic,
+    url: temp,
     method: "PUT",
     data: proconData
   })
@@ -119,6 +154,7 @@ return {
   deleteSupport: deleteSupport,
   getProConData: getProConData,
   getDataReady: getDataReady,
+  resetDataReady: resetDataReady,
   updateProConAtIndex: updateProConAtIndex,
   updateSupportingAtIndex: updateSupportingAtIndex
 };
@@ -138,6 +174,26 @@ var proconView = (function($) {
   }
 
   function registerEvents() {
+
+    $('#callapseAllButton').click(function(e) {
+      $('.claim.title').each(function(){
+        $(this).accordion('close');
+      });
+    });
+    $('#expandAllButton').click(function(e) {
+      $('.claim.title').each(function(){
+        $(this).accordion('open');
+      });
+    });
+
+    var addProConButton = document.getElementById('addProConButton');
+    addProConButton.addEventListener('click', function(){
+      addProCon();
+      TogetherJS.send({
+        type: "addProConPair"
+      });
+    }, false);
+
     $('.pro .dropdown.icon').click(function(e) {
       // Preventing icon click, which will mess up the interface.
       e.stopPropagation();
@@ -189,7 +245,14 @@ var proconView = (function($) {
     });
 
     $('.ui.dropdown')
-    .dropdown();
+    .dropdown({
+      onChange: function(val){
+        proconModel.resetDataReady();
+        GLOBAL.topic = val;
+        proconModel.init(proconController.initializeView);
+      }
+    });
+
     $('ui.sticky')
     .sticky({
       context: '#historycontext'
@@ -226,6 +289,7 @@ var proconView = (function($) {
       }
     }, false);
 
+
     $.ajax({
       url: "/getusername",
       method: "GET",
@@ -238,6 +302,7 @@ var proconView = (function($) {
       console.log('username is '+data.username);
       GLOBAL.username = data.username;
       GLOBAL.avatarname = data.avatarname;
+      GLOBAL.topics = data.topics;
     });
     $.ajax({
       url: "/checkExistAvatar",
@@ -248,8 +313,8 @@ var proconView = (function($) {
       },
     })
     .done(function(data){
-      console.log("checked avatar exists or not! data.resp is ");
-      console.dir(data);
+      // console.log("checked avatar exists or not! data.resp is ");
+      //console.dir(data);
       if(!data.resp.exist) {
         $.ajax({
           url: "/SaveScreenName/"+TogetherJS.config.get("getUserName"),
@@ -281,11 +346,6 @@ var proconView = (function($) {
           element: document.querySelector('.welcome'),
           intro: "After you log in, the user ID is only visible to you, and your group member would see your system-generated nickname"
         },
-        // {
-        //   element: document.querySelectorAll('.topic-bar')[0],
-        //   intro: "You can select topic from here, but for now, your task is to discuss over the topic on the right to be forgotten",
-        //   position: 'left'
-        // },
         {
           element: document.querySelectorAll('.proconpair')[0],
           intro: "The PRO and CON arguments are structured in pair correspondingly"
@@ -330,71 +390,54 @@ var proconView = (function($) {
         }
         ]
       });
-      intro.setOption('tooltipPosition', 'auto');
-      intro.setOption('positionPrecedence', ['left', 'right', 'bottom', 'top']);
+intro.setOption('tooltipPosition', 'auto');
+intro.setOptions({ 'skipLabel': 'Exit', 'tooltipPosition': 'auto' });
+intro.setOptions({ 'prevLabel': '&larr; Back', 'tooltipPosition': 'auto' });
+intro.setOptions({ 'nextLabel': 'Next &rarr;', 'tooltipPosition': 'auto' });
+intro.start();
+}, false);
+document.getElementsByClassName("usersetting")[0].addEventListener("click",function(e){
+  $.ajax({
+    url:"/instructor",
+    method: "GET"
+  })
+  .done(function(data){
+    console.log("enter instructor");
+  });
+},false);
 
-      intro.start();
-    //   .onbeforechange(function(targetElement) {
-    //   $(".steps").hide();
-    //   $(".left").css("float", "left");
-    //   $("input").removeClass("error");
-    //   $(".right").hide();
-    //   switch($(targetElement).attr("data-step")) {
-    //     case "2":
-    //       $(".flexi_form").hide();
-    //       $(targetElement).show();
-    //       break;
-    //     case "3":
-    //       $("input").addClass("error");
-    //       $(targetElement).show();
-    //       break;
-    //     case "4":
-    //       $(".left").css("float", "none");
-    //       $(targetElement).show();
-    //       break;
-    //     case "5":
-    //       $(".right").show();
-    //       $(targetElement).show();
-    //       break;
-    //   }
-    // });
 
-    }, false);
-    
-  }
+}
 
-  function createTitle(content, argumentType) {
-    var title = document.createElement('div');
-    title.className = argumentType + ' ' + 'active title';
-    title.setAttribute("data-content", "Click to expand or collapse");
-    var icon = document.createElement('i');
-    icon.className = 'dropdown icon';
-    $(title).popup({hoverable:true});
-    title.appendChild(icon);
-    title.appendChild(document.createTextNode(content));
+function createTitle(content, argumentType) {
+  var title = document.createElement('div');
+  title.className = argumentType + ' ' + 'active title';
+  title.setAttribute("data-content", "Click to expand or collapse");
+  $(title).popup({hoverable:true});
+  title.appendChild(document.createTextNode(content));
 
-    return title;
-  }
+  return title;
+}
 
-  function createContent(contentString, side, proconIndex, index, argumentType) {
-    var content = document.createElement('div');
-    content.className = argumentType + ' ' + 'active content';
+function createContent(contentString, side, proconIndex, index, argumentType) {
+  var content = document.createElement('div');
+  content.className = argumentType + ' ' + 'active content';
 
-    // create Ace editor
-    var editor = document.createElement('div');
-    editor.className = "editor";
-    var postfix = argumentType ==='claim'?'':index;
-    editor.setAttribute("id", side + '_' + argumentType + "_editor_" + proconIndex + '_' + postfix);
-    editor.appendChild(document.createTextNode(contentString));
-    content.appendChild(editor);
-    
+  // create Ace editor
+  var editor = document.createElement('div');
+  editor.className = "editor";
+  var postfix = argumentType ==='claim'?'':index;
+  editor.setAttribute("id", side + '_' + argumentType + "_editor_" + proconIndex + '_' + postfix);
+  editor.appendChild(document.createTextNode(contentString));
+  content.appendChild(editor);
 
-    var aceEditor = ace.edit(editor);
-    aceEditor.getSession().setMode("ace/mode/text");
-    aceEditor.getSession().setUseWrapMode(true);
-    aceEditor.renderer.setShowGutter(false);
-    aceEditor.setHighlightActiveLine(false);
-    
+
+  var aceEditor = ace.edit(editor);
+  aceEditor.getSession().setMode("ace/mode/text");
+  aceEditor.getSession().setUseWrapMode(true);
+  aceEditor.renderer.setShowGutter(false);
+  aceEditor.setHighlightActiveLine(false);
+
     // aceEditor.setValue(contentString)
     // var changed = false;
     aceEditor.on('change', function(event, sender){
@@ -429,6 +472,24 @@ var proconView = (function($) {
         console.log('autosaved: ' + updatedContent);
       }
     };
+
+    function update() {
+      var shouldShow = !aceEditor.session.getValue().length;
+      var node = aceEditor.renderer.emptyMessageNode;
+      if (!shouldShow && node) {
+        aceEditor.renderer.scroller.removeChild(aceEditor.renderer.emptyMessageNode);
+        aceEditor.renderer.emptyMessageNode = null;
+      } else if (shouldShow && !node) {
+        node = aceEditor.renderer.emptyMessageNode = document.createElement("div");
+        if(argumentType == "claim") node.textContent = "Edit here to compose a "+ side.toUpperCase() + " claim";
+        else if(argumentType == "support") node.textContent = "Edit here to compose a "+ side.toUpperCase() + " support";
+        node.className = "ace_invisible ace_emptyMessage"
+        node.style.padding = "0 9px"
+        aceEditor.renderer.scroller.appendChild(node);
+      }
+    }
+    aceEditor.on("input", update);
+    setTimeout(update, 100);
     
     return content;
   }
@@ -564,12 +625,12 @@ var proconView = (function($) {
       maxLength = Math.min(trimmedString.length, trimmedString.lastIndexOf(" "));
       
     }
-    var title = createTitle(claimRaw.content.substring(0,maxLength) + ' ...', "claim");
+    var title = createTitle((idx+1).toString()+'. '+claimRaw.content.substring(0,maxLength) + ' ...', "claim");
     var icons = createFunctionIconsForClaim(side, idx); //replace with your string.
     
 
-    
-    var content = createContent('...' + claimRaw.content.substring(maxLength), side, idx, 0, "claim");
+    var contentString = claimRaw.content.length==0 ? '':'...' + claimRaw.content.substring(maxLength);
+    var content = createContent(contentString, side, idx, 0, "claim");
     var claim = document.createElement('div');
     var children = document.createElement('div');
     var divider = document.createElement('div');
@@ -599,44 +660,41 @@ var proconView = (function($) {
     var proandcon = $('#proandcon'),
     i;
     proandcon.html('');
-
-    for (i = 0; i < proconDataRef.pro.length; i += 1) {
-      var row = document.createElement('div');
-      row.className = 'proconpair three column centered row';
-      var rightpadding = document.createElement('div');
-      // var leftpadding = document.createElement('div'), rightpadding = document.createElement('div'), midContainer = document.createElement('div');
-      // leftpadding.className = 'two wide column';
+    console.log("this is procondataref in Render");
+    console.dir(GLOBAL.savedData);
+    if(typeof GLOBAL.savedData != undefined && GLOBAL.savedData){
+      for (i = 0; i < GLOBAL.savedData.pro.length; i += 1) {
+        var row = document.createElement('div');
+        row.className = 'proconpair three column centered row';
+        var rightpadding = document.createElement('div');
       rightpadding.className = 'rightpadding two wide column';
-      // midContainer.className = 'midContainer two column centered row';
       var pro = document.createElement('div');
       pro.className = 'pro seven wide column';
 
-      pro.appendChild(createClaim('pro', i, proconDataRef.pro[i]));
+      pro.appendChild(createClaim('pro', i, GLOBAL.savedData.pro[i]));
 
       var con = document.createElement('div');
       con.className = 'con seven wide column';
-      con.appendChild(createClaim('con', i, proconDataRef.con[i]));
+      con.appendChild(createClaim('con', i, GLOBAL.savedData.con[i]));
 
-      // midContainer.appendChild(pro);
-      // midContainer.appendChild(con);
       var icons = createIconsforProConPair(i);
 
-      // row.appendChild(leftpadding);
       row.appendChild(pro);
       row.appendChild(con);
-      // row.appendChild(midContainer);
+
       for(var k=0; k<icons.length;k++){
         rightpadding.appendChild(icons[k]);
-        // row.appendChild(icons[k]);
       }
       row.appendChild(rightpadding);
       proandcon.append(row);
     }
   }
+  else console.log("No records under this topic");
+}
 
-  return {
-    init: init
-  };
+return {
+  init: init
+};
 }(jQuery));
 
 
@@ -670,62 +728,44 @@ var proconController = (function ($) {
  }
 
  function initializeView() {
-  var data = proconModel.getProConData();
-  console.log('initializing view .................. I commented out data._id');
-  console.log("initializing view ING: "+data._id);
-  //	Need serious consideration about this!!!
-  //	Current problem: _id property cannot be deleted on server side. Cannot figure out why.
-  // if(data._id != undefined){
-  //   data = data.toObject();
-  // }
-  console.log(data._id);
-  delete data._id;
-  console.log(data._id);
-  proconView.init(data);
-  $('.ui.accordion').accordion({
-    exclusive: false,
-    duration: 350,
-  });
+  // proconModel.resetDataReady();
+  // var data = proconModel.getProConData();
+  proconView.init(GLOBAL.savedData);
+  // var temp_interval = setInterval(function(){
+  //   if(typeof data != "undefined"){
 
-  $('.large.icon').css('cursor', 'pointer');
+  //     clearInterval(temp_interval);
+  //   }
+  // }, 5);
 
-  TogetherJS.reinitialize();
+
+$('.ui.accordion').accordion({
+  exclusive: false,
+  duration: 350,
+});
+
+$('.large.icon').css('cursor', 'pointer');
+
+TogetherJS.reinitialize();
 
 }
 
-proconModel.init();
+proconModel.init(initializeView);
 
-var interval = setInterval(function () {
+// var interval = setInterval(function () {
     // console.log('set interval');
 
-    if (proconModel.getDataReady() === true) {
-      clearInterval(interval);
+    // if (proconModel.getDataReady() === true) {
+    //   clearInterval(interval);
 
-      initializeView();
+      // initializeView();
 
       /**
        * collapse all claims and arguments
        */
-       $('#callapseAllButton').click(function(e) {
-        $('.claim.title').each(function(){
-          $(this).accordion('close');
-        });
-      });
-       $('#expandAllButton').click(function(e) {
-        $('.claim.title').each(function(){
-          $(this).accordion('open');
-        });
-      });
-
-       var addProConButton = document.getElementById('addProConButton');
-       addProConButton.addEventListener('click', function(){
-         addProCon();
-         TogetherJS.send({
-          type: "addProConPair"
-        });
-       }, false);
-     }
-   }, 5);
+       
+     // }
+   // }, 5);
 
 return {
  addSupport: addSupport,
@@ -733,7 +773,8 @@ return {
  deleteSupport: deleteSupport,
  addProCon: addProCon,
  updateProConAtIndex: updateProConAtIndex,
- updateSupportingAtIndex: updateSupportingAtIndex
+ updateSupportingAtIndex: updateSupportingAtIndex,
+ initializeView:initializeView
 };
 
 }(jQuery));
