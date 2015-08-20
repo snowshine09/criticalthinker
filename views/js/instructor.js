@@ -16,10 +16,11 @@ $('.updateoredit').click(function(e){
     console.log("finish editing in topic");
     valueholders[3].classList.remove("invisible");
     valueholders[1].classList.add("invisible");
+    e.target.innerText = "Edit";
   }
   if(newtopic != oldtopic){
     valueholders[3].innerText = newtopic;
-    e.target.innerText = "Edit";
+
     $.ajax({
       url: "/ChangeTopic",
       method: "PUT",
