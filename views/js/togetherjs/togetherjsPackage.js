@@ -5609,7 +5609,7 @@ define('ui',["require", "jquery", "util", "session", "templates", "templating", 
       }
 
       // FIXME: turned off for now
-      if( numberOfUsers >= 7) {
+      if( numberOfUsers >= 4) {
         CollapsedDock();
       } else {
         // reset
@@ -6880,7 +6880,7 @@ define('cursor',["jquery", "ui", "util", "session", "elementFinder", "tinycolor"
       var name = this.element.find(".togetherjs-cursor-name");
       var nameContainer = this.element.find(".togetherjs-cursor-container");
       assert(name.length);
-      name.text(peer.name);
+      name.text(peer.name.split(' ').pop());
       nameContainer.css({
         backgroundColor: peer.color,
         color: tinycolor.mostReadable(peer.color, FOREGROUND_COLORS)
@@ -8199,7 +8199,8 @@ define('forms',["jquery", "util", "session", "elementFinder", "eventMaker", "tem
     var location = elementFinder.elementLocation(el);
     var msg = {
       type: "form-update",
-      element: location
+      element: location,
+      topic: GLOBAL.topic
     };
     if (isText(el) || tracker) {
       var history = el.data("togetherjsHistory");
@@ -8690,6 +8691,7 @@ define('forms',["jquery", "util", "session", "elementFinder", "eventMaker", "tem
     }
     var msg = {
       type: "form-update",
+      topic: GLOBAL.topic,
       element: element,
       "server-echo": true,
       replace: {
@@ -8709,7 +8711,7 @@ define('forms',["jquery", "util", "session", "elementFinder", "eventMaker", "tem
   }
 
   session.hub.on("form-update", function (msg) {
-    if (! msg.sameUrl) {
+    if (! msg.sameUrl || msg.topic !=GLOBAL.topic) {
       return;
     }
     var el = $(elementFinder.findElement(msg.element));

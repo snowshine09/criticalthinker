@@ -14,7 +14,7 @@
   // GLOBAL.topic = $(".topic-bar span").text() == "Select Topics" ? "The right to be forgotten":$(".topic-bar span").text();
 
   function fetchData(secondcallback, callback) {
-    if($(".topic-bar span").length==0 || $(".topic-bar span").text() === "Select Topics"){
+    if($(".topic-bar span").length==0){
       temp = "The right to be forgotten"; //default
     }
     else {
@@ -735,10 +735,12 @@ var proconController = (function ($) {
 
   function updateProConAtIndex(side, claimIdx, content) {
    proconModel.updateProConAtIndex(side, claimIdx, content);
+   initializeView();
  }
 
  function updateSupportingAtIndex(side, claimIdx, index, content){
    proconModel.updateSupportingAtIndex(side, claimIdx, index, content);
+   initializeView();
  }
 
  function initializeView() {
