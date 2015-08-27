@@ -15,7 +15,7 @@
 
   function fetchData(secondcallback, callback) {
     if($(".topic-bar span").length==0 || $(".topic-bar span").text() === "Select Topics"){
-      temp = "The right to be forgotten";
+      temp = "The right to be forgotten"; //default
     }
     else {
       temp = $(".topic-bar span").text();
@@ -25,6 +25,7 @@
       value: temp,
       writable: true
     });
+    $(".topic-bar span").val(GLOBAL.topic);
     callback(secondcallback);
   }
 
@@ -298,30 +299,30 @@ var proconView = (function($) {
     }, false);
 
 
-    $.ajax({
-      url: "/getusername",
-      method: "GET",
-      error: function(xhr, desc, err) {
-        console.log(xhr);
-        console.log("Details0: " + desc + "\nError:" + err);
-      },
-    })
-    .done(function(data){
-      console.log('username is '+data.username);
-      GLOBAL.username = data.username;
-      GLOBAL.avatarname = data.avatarname;
-      GLOBAL.topics = data.topics;
-      GLOBAL.title = data.title;
-    });
-    $.ajax({
-      url: "/checkExistAvatar",
-      method: "GET",
-      error: function(xhr, desc, err) {
-        console.log(xhr);
-        console.log("Details0: " + desc + "\nError:" + err);
-      },
-    })
-    .done(function(data){
+$.ajax({
+  url: "/getusername",
+  method: "GET",
+  error: function(xhr, desc, err) {
+    console.log(xhr);
+    console.log("Details0: " + desc + "\nError:" + err);
+  },
+})
+.done(function(data){
+  console.log('username is '+data.username);
+  GLOBAL.username = data.username;
+  GLOBAL.avatarname = data.avatarname;
+  GLOBAL.topics = data.topics;
+  GLOBAL.title = data.title;
+});
+$.ajax({
+  url: "/checkExistAvatar",
+  method: "GET",
+  error: function(xhr, desc, err) {
+    console.log(xhr);
+    console.log("Details0: " + desc + "\nError:" + err);
+  },
+})
+.done(function(data){
       // console.log("checked avatar exists or not! data.resp is ");
       //console.dir(data);
       if(!data.resp.exist) {
@@ -344,61 +345,61 @@ var proconView = (function($) {
       }
     });
 
-    document.getElementsByClassName('helptour')[0].addEventListener('click',function(e){
-      var intro = introJs();
-      intro.setOptions({
-        steps: [
-        { 
-          intro: "Welcome to Critical Thinker! Let's first take a brief look at how to use the tool."
-        },
-        {
-          element: document.querySelector('.welcome'),
-          intro: "After you log in, the user ID is only visible to you, and your group member would see your system-generated nickname"
-        },
-        {
-          element: document.querySelectorAll('.proconpair')[0],
-          intro: "The PRO and CON arguments are structured in pair correspondingly"
-        },
-        {
-          element: document.querySelectorAll('.rightpadding.two')[0],
-          intro: "You can add or delete with the plus or cross button"
-        },
-        {
-          element: document.querySelectorAll('.pro.seven.column')[0],
-          intro: 'The left panel is where PRO arguments are put, whereas the right panel is the place for CON arguments',
-          position: 'left'
-        },
-        {
-          element: document.querySelectorAll('.editor.ace_editor')[0],
-          intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the hand",
-          position: 'bottom'
-        },
-        {
-          element: document.querySelectorAll('.claimIcon.row')[0],
-          intro: 'Click the Hand to add more backings to back up the above proposition'
-        },
-        {
-          element: document.querySelectorAll('.supporting')[0],
-          intro: "These are where you write the backings with facts, evidences, reasoning or examples",
-          position:'bottom'
-        },
-        {
-          element: document.querySelectorAll('.supportIcon.row')[0],
-          intro: "Click the cross button to delete the piece of backing"
-        },
-        {
-          element:document.querySelector('#togetherjs-chat-button'),
-          intro: "Click here to open the Chat Window to talk with your group member(s)"
-        },
-        {
-          element: document.querySelectorAll('.chathistory-dock-right.btn')[0],
-          intro: "Click here to browse the chat history that occurred before"
-        },
-        {
-          intro: "Thanks for taking the brief tour, now embark on the journey with Critical Thinker"
-        }
-        ]
-      });
+document.getElementsByClassName('helptour')[0].addEventListener('click',function(e){
+  var intro = introJs();
+  intro.setOptions({
+    steps: [
+    { 
+      intro: "Welcome to Critical Thinker! Let's first take a brief look at how to use the tool."
+    },
+    {
+      element: document.querySelector('.welcome'),
+      intro: "After you log in, the user ID is only visible to you, and your group member would see your system-generated nickname"
+    },
+    {
+      element: document.querySelectorAll('.proconpair')[0],
+      intro: "The PRO and CON arguments are structured in pair correspondingly"
+    },
+    {
+      element: document.querySelectorAll('.rightpadding.two')[0],
+      intro: "You can add or delete with the plus or cross button"
+    },
+    {
+      element: document.querySelectorAll('.pro.seven.column')[0],
+      intro: 'The left panel is where PRO arguments are put, whereas the right panel is the place for CON arguments',
+      position: 'left'
+    },
+    {
+      element: document.querySelectorAll('.editor.ace_editor')[0],
+      intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the hand",
+      position: 'bottom'
+    },
+    {
+      element: document.querySelectorAll('.claimIcon.row')[0],
+      intro: 'Click the Hand to add more backings to back up the above proposition'
+    },
+    {
+      element: document.querySelectorAll('.supporting')[0],
+      intro: "These are where you write the backings with facts, evidences, reasoning or examples",
+      position:'bottom'
+    },
+    {
+      element: document.querySelectorAll('.supportIcon.row')[0],
+      intro: "Click the cross button to delete the piece of backing"
+    },
+    {
+      element:document.querySelector('#togetherjs-chat-button'),
+      intro: "Click here to open the Chat Window to talk with your group member(s)"
+    },
+    {
+      element: document.querySelectorAll('.chathistory-dock-right.btn')[0],
+      intro: "Click here to browse the chat history that occurred before"
+    },
+    {
+      intro: "Thanks for taking the brief tour, now embark on the journey with Critical Thinker"
+    }
+    ]
+  });
 intro.setOption('tooltipPosition', 'auto');
 intro.setOptions({ 'skipLabel': 'Exit', 'tooltipPosition': 'auto' });
 intro.setOptions({ 'prevLabel': '&larr; Back', 'tooltipPosition': 'auto' });
@@ -538,6 +539,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
       proconController.addSupport(side, idx);
       console.log('sending add supporting');
       TogetherJS.send({
+        topic: GLOBAL.topic,
        type: "addSupporting", 
        side: side, 
        index: idx});
@@ -562,6 +564,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     removeIcon.addEventListener('click', function(){
       proconController.deleteProCon(idx);
       TogetherJS.send({
+        topic: GLOBAL.topic,
         type: "deleteProConPair", 
         index: idx});   
     }, false);
@@ -576,7 +579,8 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     addProConIcon.addEventListener('click', function(){
      proconController.addProCon();
      TogetherJS.send({
-      type: "addProConPair"
+      type: "addProConPair",
+      topic: GLOBAL.topic
     });
    }, false);
     $(addProConIcon).popup({
@@ -603,6 +607,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
      console.log('fire togetherjs sync remove event');
      TogetherJS.send({
       type: "removeSupporting", 
+      topic: GLOBAL.topic,
       side: side, 
       proconIndex: proconIdx, 
       index: idx});
