@@ -7,21 +7,12 @@ var userSchema = mongoose.Schema({
     email: String,
     avatarname: String,
     password: String,
-    lastSnap: {
+    lastSnap: [{
         topic: String,
         content: String
-    },
+    }],
     topics: [String],
     role: String
-    // local: {
-        
-    // },
-    // facebook: {
-    //     id: String,
-    //     token: String,
-    //     email: String,
-    //     name: String
-    // }
 }, {collection:"user"});
 
 userSchema.methods.generateHash = function(password) {
