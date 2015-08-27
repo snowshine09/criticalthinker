@@ -241,65 +241,65 @@ req.user.topics = items;
   // }));
 
 app.post('/userlogin', function(req, res, next){
-  passport.authenticate('local', function(err, user, info) {
-    if (err) { return next(err); }
-    if (!user) { return res.redirect('/login'); }
-    req.logIn(user, function(err) {
-      if (err) { return next(err); }
+  // passport.authenticate('local', function(err, user, info) {
+  //   if (err) { return next(err); }
+  //   if (!user) { return res.redirect('/login'); }
+  //   req.logIn(user, function(err) {
+  //     if (err) { return next(err); }
+  //     return res.redirect('/home');
+  //   });
+  // })(req, res, next); 
+  passport.authenticate('ldapauth', {session: false}, function(err, user, info){
+    if(err) {
+      return next(err);
+    }
+
+    if (!user) {
+      console.log("Your password is incorrect");
       return res.redirect('/home');
-    });
-  })(req, res, next); 
-//   passport.authenticate('ldapauth', {session: false}, function(err, user, info){
-//     if(err) {
-//       return next(err);
-//     }
+    }
+    console.log('enter ldapauth, the user who is logged is listed as follows:');
+      console.dir(user);
+      User.findOne({username:user.uid}, function(err,result){
+        if(err){
+          console.log("there is an err in User.findOne for PSU account log in");
+          console.err(err);
+        }
+        console.log("the result is" + result);
+        if(!result){
+          var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:["The right to be forgotten"],role:user.title});
+          localUser.save(function(err, newuser){
+            if(err) return console.error(err);
+            console.log("user is saved");
 
-//     if (!user) {
-//       console.log("Your password is incorrect");
-//       return res.redirect('/home');
-//     }
-//     console.log('enter ldapauth, the user who is logged is listed as follows:');
-//       console.dir(user);
-//       User.findOne({username:user.uid}, function(err,result){
-//         if(err){
-//           console.log("there is an err in User.findOne for PSU account log in");
-//           console.err(err);
-//         }
-//         console.log("the result is" + result);
-//         if(!result){
-//           var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:["The right to be forgotten"],role:user.title});
-//           localUser.save(function(err, newuser){
-//             if(err) return console.error(err);
-//             console.log("user is saved");
+            req.logIn(newuser, function(err) {
+              console.log("enter req.logIn");
+              if (err) { 
+                console.log("enter err!!! in req.logIn"); 
+                console.log("the err is " + err);
+                return next(err); 
+              }
+              else return res.redirect('/home');
+            });
 
-//             req.logIn(newuser, function(err) {
-//               console.log("enter req.logIn");
-//               if (err) { 
-//                 console.log("enter err!!! in req.logIn"); 
-//                 console.log("the err is " + err);
-//                 return next(err); 
-//               }
-//               else return res.redirect('/home');
-//             });
+          });
+        }
+        else {
+          console.log("user is existing");
+          req.logIn(result, function(err) {
+            console.log("enter req.logIn");
+            if (err) { 
+              console.log("enter err!!! in req.logIn"); 
+              console.log("the err is " + err);
+              return next(err); 
+            }
+            else return res.redirect('/home');
+          });
+        }
+      });
 
-//           });
-//         }
-//         else {
-//           console.log("user is existing");
-//           req.logIn(result, function(err) {
-//             console.log("enter req.logIn");
-//             if (err) { 
-//               console.log("enter err!!! in req.logIn"); 
-//               console.log("the err is " + err);
-//               return next(err); 
-//             }
-//             else return res.redirect('/home');
-//           });
-//         }
-//       });
-
-// console.log("after auth, what is the req and res");
-// })(req, res, next);
+console.log("after auth, what is the req and res");
+})(req, res, next);
 });
 
 app.get('/home', isLoggedIn, function (req, res) {
