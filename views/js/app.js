@@ -170,7 +170,18 @@ var proconView = (function($) {
     
     GLOBAL.timeout = null;
     render();
+    removeEvents();
     registerEvents();
+  }
+
+  function removeEvents() {
+    $('#callapseAllButton').unbind('click');
+    $('#expandAllButton').unbind('click');
+    $('.dropdown.icon').unbind('click');
+    $('.claim.title').unbind('click');
+    $('span.chathistory-dock-right').unbind('click');
+    $('.helptour').unbind('click');
+    $('.usersetting').unbind('click');
   }
 
   function registerEvents() {
@@ -185,14 +196,6 @@ var proconView = (function($) {
         $(this).accordion('open');
       });
     });
-
-    var addProConButton = document.getElementById('addProConButton');
-    addProConButton.addEventListener('click', function(){
-      addProCon();
-      TogetherJS.send({
-        type: "addProConPair"
-      });
-    }, false);
 
     $('.pro .dropdown.icon').click(function(e) {
       // Preventing icon click, which will mess up the interface.
@@ -257,9 +260,13 @@ var proconView = (function($) {
     .sticky({
       context: '#historycontext'
     });
+    
+
 
     var historyBtn = document.getElementsByClassName('chathistory-dock-right btn')[0], Chatcontent = document.getElementsByClassName('chathistory-dock-right content')[0];
     historyBtn.addEventListener('click', function(e){
+      e.preventDefault();
+
       if($(Chatcontent).css('display')==='none'){
         $.ajax({
           url: "/chathistory/"+GLOBAL.topic,
@@ -270,14 +277,15 @@ var proconView = (function($) {
           $(Chatcontent).show();
           var closechatBtn = document.getElementsByClassName('closechat')[0];
           closechatBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             $(Chatcontent).hide();
             $(Chatcontent).removeClass("visible");
             while(Chatcontent.firstChild) {
               Chatcontent.removeChild(Chatcontent.firstChild);
-            }
+            };
           }, false);
         });
-        $(Chatcontent).transition('slide right');
+        // $(Chatcontent).transition('slide right');
 
       }
       else {
@@ -303,6 +311,7 @@ var proconView = (function($) {
       GLOBAL.username = data.username;
       GLOBAL.avatarname = data.avatarname;
       GLOBAL.topics = data.topics;
+      GLOBAL.title = data.title;
     });
     $.ajax({
       url: "/checkExistAvatar",
@@ -522,7 +531,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     row.className = 'claimIcon row';
 
     var addIcon = document.createElement('i');
-    addIcon.className = 'large pointing up icon';    
+    addIcon.className = 'large plus icon';    
 
     addIcon.addEventListener('click', function(e){
 
@@ -667,34 +676,34 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
         var row = document.createElement('div');
         row.className = 'proconpair three column centered row';
         var rightpadding = document.createElement('div');
-      rightpadding.className = 'rightpadding two wide column';
-      var pro = document.createElement('div');
-      pro.className = 'pro seven wide column';
+        rightpadding.className = 'rightpadding two wide column';
+        var pro = document.createElement('div');
+        pro.className = 'pro seven wide column';
 
-      pro.appendChild(createClaim('pro', i, GLOBAL.savedData.pro[i]));
+        pro.appendChild(createClaim('pro', i, GLOBAL.savedData.pro[i]));
 
-      var con = document.createElement('div');
-      con.className = 'con seven wide column';
-      con.appendChild(createClaim('con', i, GLOBAL.savedData.con[i]));
+        var con = document.createElement('div');
+        con.className = 'con seven wide column';
+        con.appendChild(createClaim('con', i, GLOBAL.savedData.con[i]));
 
-      var icons = createIconsforProConPair(i);
+        var icons = createIconsforProConPair(i);
 
-      row.appendChild(pro);
-      row.appendChild(con);
+        row.appendChild(pro);
+        row.appendChild(con);
 
-      for(var k=0; k<icons.length;k++){
-        rightpadding.appendChild(icons[k]);
+        for(var k=0; k<icons.length;k++){
+          rightpadding.appendChild(icons[k]);
+        }
+        row.appendChild(rightpadding);
+        proandcon.append(row);
       }
-      row.appendChild(rightpadding);
-      proandcon.append(row);
     }
+    else console.log("No records under this topic");
   }
-  else console.log("No records under this topic");
-}
 
-return {
-  init: init
-};
+  return {
+    init: init
+  };
 }(jQuery));
 
 

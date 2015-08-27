@@ -1360,7 +1360,7 @@ section.togetherjs-buttons .togetherjs-same-url {
   display: none;
 }
 .togetherjs-cursor .togetherjs-cursor-container {
-  opacity: 0.9;
+  opacity: 0.5;
   white-space: nowrap;
   font-family: openSansLight, Helvetica, 'Helvetica Neue', Arial, sans-serif;
   font-size: 40%;

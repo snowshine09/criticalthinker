@@ -21,17 +21,30 @@
       return array[Math.floor(Math.random() * array.length)];
     };
     TogetherJSConfig_hubBase = "http://ct.ist.psu.edu:8081";
+    var randomColor = function () {
+      console.log("enter randomColor");
+      var red = Math.floor(Math.random()*128+128).toString(),
+      green = Math.floor(Math.random()*128+128).toString(),
+      blue = Math.floor(Math.random()*128+128).toString(),
+      opacity =Math.random().toFixed(2).toString();
+      console.log("rgba("+red+","+green+","+blue+","+opacity+")");
+      console.log(("rgba("+red+","+green+","+blue+","+opacity+")").toString());
+      return ('rgba('+red+","+green+","+blue+","+opacity+')');
+    };
+    TogetherJSConfig_hubBase = "http://localhost:8081";
     TogetherJSConfig_findRoom = {prefix: "111", max: 5};
     TogetherJSConfig_autoStart = true;
     TogetherJSConfig_suppressJoinConfirmation = true;
     TogetherJSConfig_storagePrefix = "ct";
     TogetherJSConfig_getUserName = pickRandom(DEFAULT_NICKNAMES);
+    TogetherJSConfig_disableWebRTC = true;
     // TogetherJSConfig_on = {
     //   ready: function () {
     //     $("#togetherjs-container").append($(".chathistory-dock-right.content"));
     //   }
     // };
-    TogetherJSConfig_getUserColor = pickRandom(DEFAULT_COLORS);
+    TogetherJSConfig_getUserColor = randomColor();
+    //pickRandom(DEFAULT_COLORS);
 
   </script>
   <script src="./js/togetherjs-min.js"></script>
@@ -43,7 +56,7 @@
 <body>
   <div class="ui inverted menu">
     <div class="item welcome">
-      Welcome to Critical Thinker<string> <%= user ? ', '+user.username : ' ' %> </string>!
+      Welcome to Critical Thinker<string> <%= user ? ', '+user.avatarname : ' ' %> </string>!
     </div>
     <!-- <div class="item">
       <a href='/changetemplate' class='ui blue label'>Change Template</a>
@@ -54,12 +67,17 @@
     <div class="item right">
       <button class="ui button helptour"><i class="help icon"></i></button>
     </div>
-    <div class="item right">
-      <button class="ui olive button usersetting"><i class="user icon"></i><a href='/instructor'>Switch View</a></button>
-    </div>
+
+    <% if(user.role != "UNDERGRAD STUDENT") { %>
+
+      <div class="item right">
+        <button class="ui olive toggle button usersetting">
+          <i class="setting icon"></i><a href='/instructor'>Topic Setting</a>
+        </button>
+      </div>
+
+    <% } %>
   </div>
-  
-  
   <div class='ui segment topic-bar'>
     <div class="ui teal ribbon label">
       Topics:
@@ -71,17 +89,17 @@
         <% for(var i=0; i<topics.length; i++) {%>
         <div class = "topic item"><%= topics[i] %></div>
         <% } %>
-        
+
       </div>
     </div>
-    
+
   </div>
 
   <div class="ui grid all-operator">
     <div class='row'>
       <div id='expandAllButton' class='ui large button'> Expand All </div>
       <div id='callapseAllButton' class='ui large button'> Collapse All </div>
-      <div id='addProConButton' class='ui large button'>Add ProCon</div>
+      <!-- <div id='addProConButton' class='ui large button'>Add ProCon</div> -->
     </div>
     <div class='row'>
       <div class="one wide column"></div>
@@ -99,11 +117,12 @@
   <div id='proandcon' class='ui padded page grid'>
 
   </div>
-  
-  
+
+
   <div id="historycontext">
     <div class="ui center sticky chathistory-dock-right btn">
-      <i class="history icon"></i>Chat history
+      
+      <span width="100%" height="100%" display="table"><i class="history icon"></i>Chat history</span>
     </div>
     <div class="chathistory-dock-right content" style = "display: none">
 
