@@ -267,7 +267,7 @@ app.post('/userlogin', function(req, res, next){
         }
         console.log("the result is" + result);
         if(!result){
-          var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:["The right to be forgotten"],role:user.title});
+          var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:[  "The right to be forgotten",  "Future of Work",  "Reviving Community" ],role:user.title});
           localUser.save(function(err, newuser){
             if(err) return console.error(err);
             console.log("user is saved");
