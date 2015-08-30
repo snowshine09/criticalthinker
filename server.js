@@ -1,6 +1,6 @@
 var express = require('express'),
     app = express(),
-    port = 8080,
+    port = 1103,
     mongoose = require('mongoose'),
     passport = require('passport'),
     flash = require('connect-flash'),
