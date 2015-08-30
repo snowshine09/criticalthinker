@@ -14,8 +14,8 @@
   // GLOBAL.topic = $(".topic-bar span").text() == "Select Topics" ? "The right to be forgotten":$(".topic-bar span").text();
 
   function fetchData(secondcallback, callback) {
-    if($(".topic-bar span").length==0 || $(".topic-bar span").text() === "Select Topics"){
-      temp = "The right to be forgotten";
+    if($(".topic-bar span").length==0){
+      temp = "The right to be forgotten"; //default
     }
     else {
       temp = $(".topic-bar span").text();
@@ -25,6 +25,7 @@
       value: temp,
       writable: true
     });
+    $(".topic-bar span").val(GLOBAL.topic);
     callback(secondcallback);
   }
 
@@ -170,7 +171,18 @@ var proconView = (function($) {
     
     GLOBAL.timeout = null;
     render();
+    removeEvents();
     registerEvents();
+  }
+
+  function removeEvents() {
+    $('#callapseAllButton').unbind('click');
+    $('#expandAllButton').unbind('click');
+    $('.dropdown.icon').unbind('click');
+    $('.claim.title').unbind('click');
+    $('span.chathistory-dock-right').unbind('click');
+    $('.helptour').unbind('click');
+    $('.usersetting').unbind('click');
   }
 
   function registerEvents() {
@@ -185,14 +197,6 @@ var proconView = (function($) {
         $(this).accordion('open');
       });
     });
-
-    var addProConButton = document.getElementById('addProConButton');
-    addProConButton.addEventListener('click', function(){
-      addProCon();
-      TogetherJS.send({
-        type: "addProConPair"
-      });
-    }, false);
 
     $('.pro .dropdown.icon').click(function(e) {
       // Preventing icon click, which will mess up the interface.
@@ -257,9 +261,13 @@ var proconView = (function($) {
     .sticky({
       context: '#historycontext'
     });
+    
+
 
     var historyBtn = document.getElementsByClassName('chathistory-dock-right btn')[0], Chatcontent = document.getElementsByClassName('chathistory-dock-right content')[0];
     historyBtn.addEventListener('click', function(e){
+      e.preventDefault();
+
       if($(Chatcontent).css('display')==='none'){
         $.ajax({
           url: "/chathistory/"+GLOBAL.topic,
@@ -270,14 +278,15 @@ var proconView = (function($) {
           $(Chatcontent).show();
           var closechatBtn = document.getElementsByClassName('closechat')[0];
           closechatBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             $(Chatcontent).hide();
             $(Chatcontent).removeClass("visible");
             while(Chatcontent.firstChild) {
               Chatcontent.removeChild(Chatcontent.firstChild);
-            }
+            };
           }, false);
         });
-        $(Chatcontent).transition('slide right');
+        // $(Chatcontent).transition('slide right');
 
       }
       else {
@@ -290,29 +299,30 @@ var proconView = (function($) {
     }, false);
 
 
-    $.ajax({
-      url: "/getusername",
-      method: "GET",
-      error: function(xhr, desc, err) {
-        console.log(xhr);
-        console.log("Details0: " + desc + "\nError:" + err);
-      },
-    })
-    .done(function(data){
-      console.log('username is '+data.username);
-      GLOBAL.username = data.username;
-      GLOBAL.avatarname = data.avatarname;
-      GLOBAL.topics = data.topics;
-    });
-    $.ajax({
-      url: "/checkExistAvatar",
-      method: "GET",
-      error: function(xhr, desc, err) {
-        console.log(xhr);
-        console.log("Details0: " + desc + "\nError:" + err);
-      },
-    })
-    .done(function(data){
+$.ajax({
+  url: "/getusername",
+  method: "GET",
+  error: function(xhr, desc, err) {
+    console.log(xhr);
+    console.log("Details0: " + desc + "\nError:" + err);
+  },
+})
+.done(function(data){
+  console.log('username is '+data.username);
+  GLOBAL.username = data.username;
+  GLOBAL.avatarname = data.avatarname;
+  GLOBAL.topics = data.topics;
+  GLOBAL.title = data.title;
+});
+$.ajax({
+  url: "/checkExistAvatar",
+  method: "GET",
+  error: function(xhr, desc, err) {
+    console.log(xhr);
+    console.log("Details0: " + desc + "\nError:" + err);
+  },
+})
+.done(function(data){
       // console.log("checked avatar exists or not! data.resp is ");
       //console.dir(data);
       if(!data.resp.exist) {
@@ -335,61 +345,61 @@ var proconView = (function($) {
       }
     });
 
-    document.getElementsByClassName('helptour')[0].addEventListener('click',function(e){
-      var intro = introJs();
-      intro.setOptions({
-        steps: [
-        { 
-          intro: "Welcome to Critical Thinker! Let's first take a brief look at how to use the tool."
-        },
-        {
-          element: document.querySelector('.welcome'),
-          intro: "After you log in, the user ID is only visible to you, and your group member would see your system-generated nickname"
-        },
-        {
-          element: document.querySelectorAll('.proconpair')[0],
-          intro: "The PRO and CON arguments are structured in pair correspondingly"
-        },
-        {
-          element: document.querySelectorAll('.rightpadding.two')[0],
-          intro: "You can add or delete with the plus or cross button"
-        },
-        {
-          element: document.querySelectorAll('.pro.seven.column')[0],
-          intro: 'The left panel is where PRO arguments are put, whereas the right panel is the place for CON arguments',
-          position: 'left'
-        },
-        {
-          element: document.querySelectorAll('.editor.ace_editor')[0],
-          intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the hand",
-          position: 'bottom'
-        },
-        {
-          element: document.querySelectorAll('.claimIcon.row')[0],
-          intro: 'Click the Hand to add more backings to back up the above proposition'
-        },
-        {
-          element: document.querySelectorAll('.supporting')[0],
-          intro: "These are where you write the backings with facts, evidences, reasoning or examples",
-          position:'bottom'
-        },
-        {
-          element: document.querySelectorAll('.supportIcon.row')[0],
-          intro: "Click the cross button to delete the piece of backing"
-        },
-        {
-          element:document.querySelector('#togetherjs-chat-button'),
-          intro: "Click here to open the Chat Window to talk with your group member(s)"
-        },
-        {
-          element: document.querySelectorAll('.chathistory-dock-right.btn')[0],
-          intro: "Click here to browse the chat history that occurred before"
-        },
-        {
-          intro: "Thanks for taking the brief tour, now embark on the journey with Critical Thinker"
-        }
-        ]
-      });
+document.getElementsByClassName('helptour')[0].addEventListener('click',function(e){
+  var intro = introJs();
+  intro.setOptions({
+    steps: [
+    { 
+      intro: "Welcome to Critical Thinker! Let's first take a brief look at how to use the tool."
+    },
+    {
+      element: document.querySelector('.welcome'),
+      intro: "After you log in, the user ID is only visible to you, and your group member would see your system-generated nickname"
+    },
+    {
+      element: document.querySelectorAll('.proconpair')[0],
+      intro: "The PRO and CON arguments are structured in pair correspondingly"
+    },
+    {
+      element: document.querySelectorAll('.rightpadding.two')[0],
+      intro: "You can add or delete with the plus or cross button"
+    },
+    {
+      element: document.querySelectorAll('.pro.seven.column')[0],
+      intro: 'The left panel is where PRO arguments are put, whereas the right panel is the place for CON arguments',
+      position: 'left'
+    },
+    {
+      element: document.querySelectorAll('.editor.ace_editor')[0],
+      intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the hand",
+      position: 'bottom'
+    },
+    {
+      element: document.querySelectorAll('.claimIcon.row')[0],
+      intro: 'Click the Hand to add more backings to back up the above proposition'
+    },
+    {
+      element: document.querySelectorAll('.supporting')[0],
+      intro: "These are where you write the backings with facts, evidences, reasoning or examples",
+      position:'bottom'
+    },
+    {
+      element: document.querySelectorAll('.supportIcon.row')[0],
+      intro: "Click the cross button to delete the piece of backing"
+    },
+    {
+      element:document.querySelector('#togetherjs-chat-button'),
+      intro: "Click here to open the Chat Window to talk with your group member(s)"
+    },
+    {
+      element: document.querySelectorAll('.chathistory-dock-right.btn')[0],
+      intro: "Click here to browse the chat history that occurred before"
+    },
+    {
+      intro: "Thanks for taking the brief tour, now embark on the journey with Critical Thinker"
+    }
+    ]
+  });
 intro.setOption('tooltipPosition', 'auto');
 intro.setOptions({ 'skipLabel': 'Exit', 'tooltipPosition': 'auto' });
 intro.setOptions({ 'prevLabel': '&larr; Back', 'tooltipPosition': 'auto' });
@@ -522,13 +532,14 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     row.className = 'claimIcon row';
 
     var addIcon = document.createElement('i');
-    addIcon.className = 'large pointing up icon';    
+    addIcon.className = 'large plus icon';    
 
     addIcon.addEventListener('click', function(e){
 
       proconController.addSupport(side, idx);
       console.log('sending add supporting');
       TogetherJS.send({
+        topic: GLOBAL.topic,
        type: "addSupporting", 
        side: side, 
        index: idx});
@@ -553,6 +564,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     removeIcon.addEventListener('click', function(){
       proconController.deleteProCon(idx);
       TogetherJS.send({
+        topic: GLOBAL.topic,
         type: "deleteProConPair", 
         index: idx});   
     }, false);
@@ -567,7 +579,8 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     addProConIcon.addEventListener('click', function(){
      proconController.addProCon();
      TogetherJS.send({
-      type: "addProConPair"
+      type: "addProConPair",
+      topic: GLOBAL.topic
     });
    }, false);
     $(addProConIcon).popup({
@@ -594,6 +607,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
      console.log('fire togetherjs sync remove event');
      TogetherJS.send({
       type: "removeSupporting", 
+      topic: GLOBAL.topic,
       side: side, 
       proconIndex: proconIdx, 
       index: idx});
@@ -667,34 +681,34 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
         var row = document.createElement('div');
         row.className = 'proconpair three column centered row';
         var rightpadding = document.createElement('div');
-      rightpadding.className = 'rightpadding two wide column';
-      var pro = document.createElement('div');
-      pro.className = 'pro seven wide column';
+        rightpadding.className = 'rightpadding two wide column';
+        var pro = document.createElement('div');
+        pro.className = 'pro seven wide column';
 
-      pro.appendChild(createClaim('pro', i, GLOBAL.savedData.pro[i]));
+        pro.appendChild(createClaim('pro', i, GLOBAL.savedData.pro[i]));
 
-      var con = document.createElement('div');
-      con.className = 'con seven wide column';
-      con.appendChild(createClaim('con', i, GLOBAL.savedData.con[i]));
+        var con = document.createElement('div');
+        con.className = 'con seven wide column';
+        con.appendChild(createClaim('con', i, GLOBAL.savedData.con[i]));
 
-      var icons = createIconsforProConPair(i);
+        var icons = createIconsforProConPair(i);
 
-      row.appendChild(pro);
-      row.appendChild(con);
+        row.appendChild(pro);
+        row.appendChild(con);
 
-      for(var k=0; k<icons.length;k++){
-        rightpadding.appendChild(icons[k]);
+        for(var k=0; k<icons.length;k++){
+          rightpadding.appendChild(icons[k]);
+        }
+        row.appendChild(rightpadding);
+        proandcon.append(row);
       }
-      row.appendChild(rightpadding);
-      proandcon.append(row);
     }
+    else console.log("No records under this topic");
   }
-  else console.log("No records under this topic");
-}
 
-return {
-  init: init
-};
+  return {
+    init: init
+  };
 }(jQuery));
 
 
@@ -721,10 +735,12 @@ var proconController = (function ($) {
 
   function updateProConAtIndex(side, claimIdx, content) {
    proconModel.updateProConAtIndex(side, claimIdx, content);
+   initializeView();
  }
 
  function updateSupportingAtIndex(side, claimIdx, index, content){
    proconModel.updateSupportingAtIndex(side, claimIdx, index, content);
+   initializeView();
  }
 
  function initializeView() {

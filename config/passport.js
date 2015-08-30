@@ -1,5 +1,21 @@
 var LocalStrategy    = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
+var LdapStrategy = require('passport-ldapauth');
+// var OPTS = {
+//   server: {
+//     url: 'ldaps://dirapps.aset.psu.edu:636',
+//     bindCredentials: 'secret',
+//     searchBase: 'dc=psu,dc=edu',
+//     searchFilter: '(uid={{username}})'
+//   }
+// };
+var OPTS = {
+  server: {
+    url: 'ldap://dirapps.aset.psu.edu',
+    searchBase: 'dc=psu,dc=edu',
+    searchFilter: '(uid={{username}})'
+  }
+};
 var configAuth = require('./auth');
 var isValidPassword = function(user, password){
   return bCrypt.compareSync(password, user.password);
@@ -10,6 +26,8 @@ module.exports = function(passport) {
   console.log("enter passport");
   passport.serializeUser(function(user, done) {
     console.log("serializeUser");
+    console.log(user.id);
+    console.dir(user);
     done(null, user._id);
   });
 
@@ -54,71 +72,6 @@ module.exports = function(passport) {
       });
     });
   }));
-
-  // passport.use('login', new LocalStrategy({
-  //   passReqToCallback : true
-  // }, function(req, username, password, done) { 
-  //   // check in mongo if a user with username exists or not
-  //   User.findOne({ 'username' :  username }, 
-  //     function(err, user) {
-  //       // In case of any error, return using the done method
-  //       if (err)
-  //         return done(err);
-  //       // Username does not exist, log error & redirect back
-  //       if (!user){
-  //         console.log('User Not Found with username '+username);
-  //         return done(null, false, 
-  //           req.flash('message', 'User Not found.'));                 
-  //       }
-  //       console.dir('user is '+user);
-  //       // User exists but wrong password, log the error 
-  //       if (!user.password==password){
-  //         console.log('Invalid Password');
-  //         return done(null, false, 
-  //           req.flash('message', 'Invalid Password'));
-  //       }
-  //       // User and password both match, return user from 
-  //       // done method which will be treated like success
-  //       return done(null, user);
-  //     }
-  //     );
-  // }));
-
-  // passport.use(new FacebookStrategy({
-
-  //   // pull in our app id and secret from our auth.js file
-  //   clientID        : configAuth.facebookAuth.clientID,
-  //   clientSecret    : configAuth.facebookAuth.clientSecret,
-  //   callbackURL     : configAuth.facebookAuth.callbackURL
-
-  // },
-  // function(token, refreshToken, profile, done){
-  //   console.log(profile);
-  //   process.nextTick(function() {
-  //     User.findOne({'facebook.id': profile.id}, function(err, user) {
-
-  //       if (err) {
-  //         return done(err)
-  //       }
-
-  //       if (user) {
-  //         return done(null, user);
-  //       } else {
-  //         var newUser = new User();
-  //         newUser.facebook.id = profile.id;
-  //         newUser.facebook.token = token;
-  //         newUser.facebook.name = profile.displayName;
-  //         newUser.facebook.email = profile.emails[0].value;
-
-  //         newUser.save(function(err) {
-  //             if (err) {
-  //                 throw err;
-  //             }
-
-  //             return done(null, newUser);
-  //         });
-  //       }
-  //     });
-  //   });
-  // }));
+  
+  passport.use(new LdapStrategy(OPTS));
 }
