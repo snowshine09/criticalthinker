@@ -6,7 +6,7 @@
 			return;
 		}		
 	
-		proconController.addSupport(msg.side, msg.index);
+		if(msg.topic === GLOBAL.topic)proconController.addSupport(msg.side, msg.index);
 	
 	});
 	
@@ -14,7 +14,7 @@
 		if (!msg.sameUrl) {
 			return;
 		}
-	  	proconController.deleteSupport(msg.side, msg.proconIndex, msg.index);
+	  	if(msg.topic === GLOBAL.topic)proconController.deleteSupport(msg.side, msg.proconIndex, msg.index);
 	});
 	
 	TogetherJS.hub.on('addProConPair', function(msg){
@@ -22,7 +22,7 @@
 			return;
 		}		
 
-		proconController.addProCon();
+		if(msg.topic === GLOBAL.topic)proconController.addProCon();
 	
 	});	
 	
@@ -31,7 +31,7 @@
 			return;
 		}		
 		console.log('deleteProConPair');
-		proconController.deleteProCon(msg.index);		
+		if(msg.topic === GLOBAL.topic)proconController.deleteProCon(msg.index);		
 	});
 
 	TogetherJS.hub.on('updateProConAtIndex', function(msg){
@@ -39,7 +39,7 @@
 			return;
 		}		
 		console.log('updateProConAtIndex');
-		proconController.updateProConAtIndex(msg.side, msg.claimIdx, msg.content);		
+		if(msg.topic === GLOBAL.topic)proconController.updateProConAtIndex(msg.side, msg.claimIdx, msg.content);		
 	});
 
 	TogetherJS.hub.on('updateSupportingAtIndex', function(msg){
@@ -47,7 +47,7 @@
 			return;
 		}		
 		console.log('updateSupportingAtIndex');
-		proconController.deleteProCon(msg.side, msg.claimIdx, msg.index, msg.content);		
+		if(msg.topic === GLOBAL.topic)proconController.deleteProCon(msg.side, msg.claimIdx, msg.index, msg.content);		
 	});
 }());
 

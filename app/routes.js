@@ -1,5 +1,6 @@
 var ProCon = require('../app/models/procon.js'), 
 Chatmsg = require('../app/models/chatmsg.js'), 
+UserAct = require('../app/models/useract.js'),
 User = require('./models/user.js');
 
 var timeSince = function(date) {
@@ -58,62 +59,47 @@ module.exports = function(app, passport) {
    ProCon.findOne({'topic': topic}, function(err, data){
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(data));
-    console.log("this is /all_procons/:"+ topic+"(get) stringified data: " );//+ data);
-
+    console.log("this is /all_procons/:"+ topic+"(get) stringified data: " );
+  });
  });
- });
 
-  // app.get('/all_procons', function(req, res) {
-  //   ProCon.find({}, function(err, data) {
-  //     res.setHeader('Content-Type', 'application/json');
-  //     res.send(JSON.stringify(data));
-  //     console.log("this is /all_procons stringified data: " + data);
+
+  app.put('/all_procons/:topic', function(req, res) {
+    console.log('entering app.put');
+    var topic = req.params.topic;
+    var data = req.body;
+    console.log('in server put');
+    console.log(req.body);
+    console.log(topic);
+    if(data._id != undefined){
+      console.log(data._id);
+      delete data._id;
+      console.log(data._id);
+    }
+
+    ProCon.update({'topic':topic}, data, {upsert: true}, function(err, raw){
+      if(err){
+        console.log('error in updating');
+        console.log(err);
+      }
+      console.log('The raw response from Mongo was ', raw);
+    });
+  // User.findOne({'username':req.user.toObject().username}, function(err,record){
+  //   if(err) {
+  //     handleError(err);
+  //     console.log("err: " + err);
+  //   }
+  //   record.lastSnap.forEach(function(item){
+  //     if(item.topic == topic){
+  //       console.log("data type is " + typeof data);
+  //       item.content = data;
+  //     }
+  //     record.markModified('lastSnap');
+  //     record.save(); 
   //   });
   // });
-
-app.get('/chathistory', function(req, res) {
-    // Chatmsg.find({}, function(err, data) {
-
-    //   // var template_para = {};
-    //   // template_para['chats'] = data;
-
-    //   // res.render('chathistory.ejs',template_para);
-    //   console.log("this is /Chatmsg stringified data: " + data);
-    //   var ejs = require('ejs');
-    //   // data.username = req.user.toObject().username;
-
-    //   var result = ejs.render('chathistory.ejs', {chats:data});
-    //   // document.getElementByClassName('chathistory-dock-right content visible').innerHTML = result;
-    //   console.log("result is " + result);
-    //   res.setHeader('Content-Type', 'application/json');
-    //   res.send(JSON.stringify(result));
-    // });
-});
-
-
-
-app.put('/all_procons/:topic', function(req, res) {
-  console.log('entering app.put');
-  var topic = req.params.topic;
-  var data = req.body;
-  console.log('in server put');
-  console.log(req.body);
-  console.log(topic);
-  if(data._id != undefined){
-    console.log(data._id);
-    delete data._id;
-    console.log(data._id);
-  }
-
-  ProCon.update({'topic':topic}, data, {upsert: true}, function(err, raw){
-    if(err){
-      console.log('error in updating');
-      console.log(err);
-    }
-    console.log('The raw response from Mongo was ', raw);
-  });
-  console.log("this is /all_procons/:topic(put) stringified data: " + data);
-  res.send(200, {"youKnow":"putter"});
+console.log("this is /all_procons/:topic(put) stringified data: " + data);
+res.send(200, {"youKnow":"putter"});
 });
 
 
@@ -157,11 +143,21 @@ req.user.topics = items;
       if(err) return handleError(err);
       console.log('Updating UserTopic The updated raw response from Mongo was ', raw);
     });
-    if(!oldtopic) User.update({},{'topics': items},{upsert:false, multi:true}, function(err,raw){
-      if(err) return handleError(err);
-      console.log("added new topic and propogated to all "+raw.n);
-    })
-}
+    if(!oldtopic) {
+      User.update({},{'topics': items},{upsert:false, multi:true}, function(err,raw){
+        if(err) return handleError(err);
+        console.log("added new topic and propogated to all "+raw.n);
+      });
+      var newProCon = new ProCon({topic:newtopic,pro:[{content:"",support:[{content:""}]}], con:[{content:"",support:[{content:""}]}]});
+      newProCon.save(function(err,procon){
+        if(err){
+          console.err(err);
+          console.log("err occurs when saving new empty procon");
+        }
+        console.log("new procon with blank content added");
+      });
+    }
+  }
   res.send({topic:newtopic});
 });
 
@@ -174,75 +170,67 @@ req.user.topics = items;
   //retrieve saved chat history
   app.get('/chathistory/:topic', function(req, res){
     var topic = req.params.topic;
-    Chatmsg.find({'topic':topic},function(err,data){
-      // Object.defineProperty(data, 'username', {
-      //     value: req.user.toObject().username,
-      //     writable: true
-      //   });
-    console.dir(data);
+    Chatmsg.find({'topic':topic}).sort('-time').exec(function(err,data){
+
+    // console.dir(data);
     for(var i = 0; i<data.length; i++){
-        // console.log('loop ING'+typeof data+' ' +timeSince(data[i].time));
-        // console.dir(req.user.toObject());
-        var temp = timeSince(data[i].time);
-        Object.defineProperty(data[i], 'elapsed', {
-          value: temp,
-          writable: true
-        });
-        Object.defineProperty(data[i], 'loginname', {
-          value: req.user.toObject().username,
-          writable: true
-        });
-      }
-      if(data.length)console.log('data[0].time = '+data[0].time);
-      var result = res.render('chathistory.ejs', {chats:data});
-      console.log("data is " + data);
-      console.dir(result);
-      // res.setHeader('Content-Type', 'application/json');
-      // // res.send(JSON.stringify(result));
-      // res.send(result);
+      var temp = timeSince(data[i].time);
+      Object.defineProperty(data[i], 'elapsed', {
+        value: temp,
+        writable: true
+      });
+      Object.defineProperty(data[i], 'loginname', {
+        value: req.user.toObject().username,
+        writable: true
+      });
+    }
+    if(data.length)console.log('data[0].time = '+data[0].time);
+    var result = res.render('chathistory.ejs', {chats:data});
+    console.log("data is " + data);
+    console.dir(result);
       console.log("this is /chathistory/:topic(get) stringified data: ");// + data);
-});
-});
-
-app.get('/top_names', function(req, res) {
-
-});
-
-app.get('/login', function(req, res) {
-  res.render('login.ejs');
-});
-
-app.get('/signup', function(req, res) {
-  res.render('signup.ejs');
-});
-
-app.get('/changetemplate',function(req, res){
-  res.render('template_index.ejs',{
-    user: req.user
   });
-});
+  });
 
-app.all('/instructor', function(req, res) {
-  if (!req.user) { return res.redirect('/login'); }
-  User.findOne({username:req.user.username},function(err,data){
-    if(err) handleError(err);
-    res.render('instructor.ejs',{
-      user:req.user,
-      topics: data.topics
+  app.get('/top_names', function(req, res) {
+
+  });
+
+  app.get('/login', function(req, res) {
+    res.render('login.ejs');
+  });
+
+  app.get('/signup', function(req, res) {
+    res.render('signup.ejs');
+  });
+
+  app.get('/changetemplate',function(req, res){
+    res.render('template_index.ejs',{
+      user: req.user
     });
   });
-  
-});
 
-app.get('/qna', function(req, res){
-  res.render('QnA.ejs', {question_idxs: req.q_idxs});   
-});
+  app.all('/instructor', function(req, res) {
+    if (!req.user) { return res.redirect('/login'); }
+    User.findOne({username:req.user.username},function(err,data){
+      if(err) handleError(err);
+      res.render('instructor.ejs',{
+        user:req.user,
+        topics: data.topics
+      });
+    });
 
-app.get('/proncon', function(req, res){
-  res.render('index.ejs', {
-    user: req.user
   });
-});
+
+  app.get('/qna', function(req, res){
+    res.render('QnA.ejs', {question_idxs: req.q_idxs});   
+  });
+
+  app.get('/proncon', function(req, res){
+    res.render('index.ejs', {
+      user: req.user
+    });
+  });
 
   // Facebook authentication
   // app.get('/auth/facebook', passport.authenticate('facebook', { scope : 'email' }));
@@ -253,21 +241,73 @@ app.get('/proncon', function(req, res){
   // }));
 
 app.post('/userlogin', function(req, res, next){
-  passport.authenticate('local', function(err, user, info) {
-    if (err) { return next(err); }
-    if (!user) { return res.redirect('/login'); }
-    req.logIn(user, function(err) {
-      if (err) { return next(err); }
+  // passport.authenticate('local', function(err, user, info) {
+  //   if (err) { return next(err); }
+  //   if (!user) { return res.redirect('/login'); }
+  //   req.logIn(user, function(err) {
+  //     if (err) { return next(err); }
+  //     return res.redirect('/home');
+  //   });
+  // })(req, res, next); 
+  passport.authenticate('ldapauth', {session: false}, function(err, user, info){
+    if(err) {
+      return next(err);
+    }
+
+    if (!user) {
+      console.log("Your password is incorrect");
       return res.redirect('/home');
-    });
-  })(req, res, next);
+    }
+    console.log('enter ldapauth, the user who is logged is listed as follows:');
+      console.dir(user);
+      User.findOne({username:user.uid}, function(err,result){
+        if(err){
+          console.log("there is an err in User.findOne for PSU account log in");
+          console.err(err);
+        }
+        console.log("the result is" + result);
+        if(!result){
+          var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:[  "The right to be forgotten",  "Future of Work",  "Reviving Community" ],role:user.title});
+          localUser.save(function(err, newuser){
+            if(err) return console.error(err);
+            console.log("user is saved");
+
+            req.logIn(newuser, function(err) {
+              console.log("enter req.logIn");
+              if (err) { 
+                console.log("enter err!!! in req.logIn"); 
+                console.log("the err is " + err);
+                return next(err); 
+              }
+              else return res.redirect('/home');
+            });
+
+          });
+        }
+        else {
+          console.log("user is existing");
+          req.logIn(result, function(err) {
+            console.log("enter req.logIn");
+            if (err) { 
+              console.log("enter err!!! in req.logIn"); 
+              console.log("the err is " + err);
+              return next(err); 
+            }
+            else return res.redirect('/home');
+          });
+        }
+      });
+
+console.log("after auth, what is the req and res");
+})(req, res, next);
 });
 
 app.get('/home', isLoggedIn, function (req, res) {
-  console.log("home in router is " + req.user);
+  console.log("home in router is " + req.session.passport.user);
   User.findOne({username: req.user.toObject().username},'topics',function(err,user){
     if(err) handleError(err);
     console.dir(user.topics[0]);
+    console.log("this is after logging in!");
     res.render('index.ejs', {
       user: req.user.toObject(),
       topics:user.topics
@@ -320,8 +360,10 @@ app.get('/logout', function(req, res) {
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
+    console.log("it is authenticated in is LoggedIn");
     return next();
   }
+
   res.redirect('/');
 }
 
