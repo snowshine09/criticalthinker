@@ -1,6 +1,6 @@
 #rules for this particular repository
 server.js
-views/index.ejs
+#views/index.ejs
 
 # Logs
 logs
