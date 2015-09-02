@@ -280,9 +280,15 @@ passport.authenticate('ldapauth', {session: false}, function(err, user, info){
 
         req.logIn(newuser, function(err) {
           console.log("enter req.logIn");
+          
+          if (err) { 
+            console.log("enter err!!! in req.logIn"); 
+            console.log("the err is " + err);
+            return next(err); 
+          }
           var newAct = new UserAct({
             type: "User login",
-            username: user.username
+            username: newuser.username
           });
           newAct.save(function(err,nact){
             if(err){
@@ -291,12 +297,7 @@ passport.authenticate('ldapauth', {session: false}, function(err, user, info){
             }
             console.log("new useract added");
           });
-          if (err) { 
-            console.log("enter err!!! in req.logIn"); 
-            console.log("the err is " + err);
-            return next(err); 
-          }
-          else return res.redirect('/home');
+          return res.redirect('/home');
         });
 
       });
@@ -307,7 +308,7 @@ passport.authenticate('ldapauth', {session: false}, function(err, user, info){
         console.log("enter req.logIn");
         var newAct = new UserAct({
           type: "User login",
-          username: user.username
+          username: result.username
         });
         newAct.save(function(err,nact){
           if(err){
