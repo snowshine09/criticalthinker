@@ -7,7 +7,7 @@ var timeSince = function(date) {
   if (typeof date !== 'object') {
     date = new Date(date);
   }
-  console.log("enter timeSince function");
+  // console.log("enter timeSince function");
   var seconds = Math.floor((new Date() - date) / 1000);
   var intervalType;
 
@@ -184,11 +184,11 @@ req.user.topics = items;
   //retrieve saved chat history
   app.get('/chathistory/:topic', function(req, res){
     var topic = req.params.topic;
-    Chatmsg.find({'topic':topic}).sort('time').exec(function(err,data){//-time
+    Chatmsg.find({'topic':topic}).sort('-time').exec(function(err,data){//
 
     // console.dir(data);
     for(var i = 0; i<data.length; i++){
-      var temp = data[i].time.toString();// timeSince(data[i].time);
+      var temp = timeSince(data[i].time);// data[i].time.toString();
       Object.defineProperty(data[i], 'elapsed', {
         value: temp,
         writable: true
@@ -279,6 +279,17 @@ passport.authenticate('ldapauth', {session: false}, function(err, user, info){
 
         req.logIn(newuser, function(err) {
           console.log("enter req.logIn");
+          var newAct = new UserAct({
+            type: "User login",
+            username: user.username
+          });
+          newAct.save(function(err,nact){
+            if(err){
+              console.err(err);
+              console.log("err occurs when saving new user act");
+            }
+            console.log("new useract added");
+          });
           if (err) { 
             console.log("enter err!!! in req.logIn"); 
             console.log("the err is " + err);
