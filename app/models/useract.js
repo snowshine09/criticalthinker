@@ -4,7 +4,7 @@ var ActSchema = mongoose.Schema({
   type: String,
   topic: String,
   username: String,
-  content: String,
+  content: {},
   time:  { type : Date, default: Date.now }
 }, {collection:"useract"});
 

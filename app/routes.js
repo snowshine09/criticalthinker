@@ -46,14 +46,27 @@ var timeSince = function(date) {
   return interval + ' ' + intervalType.toString() + ' ago'.toString();
 };
 module.exports = function(app, passport) {
-  app.get('/', function(req, res) {
-    res.render('login.ejs');
-    // res.render('index.ejs', {
-    //   user: req.user | null,
-    //   chats: null
-    // });
-});
+  app.get('/', isLoggedIn, function(req, res) {
+    res.render('index.ejs', {
+      user: req.user.toObject(),
+      topics:req.user.toObject().topics
+    });
+  });
   
+  app.put('/actsave',function(req, res){
+    var act = req.body;
+    console.log("the req.body is");
+    console.dir(act);
+    var newAct = new UserAct(act);
+    newAct.save(function(err,nact){
+      if(err){
+        console.err(err);
+        console.log("err occurs when saving new user act");
+      }
+      console.log("new useract added");
+    });
+  });
+
   app.get('/all_procons/:topic', function(req, res) {
    var topic = req.params.topic;
    ProCon.findOne({'topic': topic}, function(err, data){
@@ -102,6 +115,11 @@ console.log("this is /all_procons/:topic(put) stringified data: " + data);
 res.send(200, {"youKnow":"putter"});
 });
 
+app.get('/changetemplate',function(req, res){
+  res.render('template_index.ejs',{
+    user: req.user
+  });
+});
 
 app.put('/ChangeTopic',function(req, res){
   var oldtopic = req.body.oldtopic, newtopic = req.body.newtopic;
@@ -161,20 +179,16 @@ req.user.topics = items;
   res.send({topic:newtopic});
 });
 
-  // app.put('/all_procons',function(req, res){
-  //   res.json({message:"this is the case without topic suffix"});
-  // });
-
 
 
   //retrieve saved chat history
   app.get('/chathistory/:topic', function(req, res){
     var topic = req.params.topic;
-    Chatmsg.find({'topic':topic}).sort('-time').exec(function(err,data){
+    Chatmsg.find({'topic':topic}).sort('time').exec(function(err,data){//-time
 
     // console.dir(data);
     for(var i = 0; i<data.length; i++){
-      var temp = timeSince(data[i].time);
+      var temp = data[i].time.toString();// timeSince(data[i].time);
       Object.defineProperty(data[i], 'elapsed', {
         value: temp,
         writable: true
@@ -186,29 +200,9 @@ req.user.topics = items;
     }
     if(data.length)console.log('data[0].time = '+data[0].time);
     var result = res.render('chathistory.ejs', {chats:data});
-    console.log("data is " + data);
-    console.dir(result);
-      console.log("this is /chathistory/:topic(get) stringified data: ");// + data);
   });
   });
 
-  app.get('/top_names', function(req, res) {
-
-  });
-
-  app.get('/login', function(req, res) {
-    res.render('login.ejs');
-  });
-
-  app.get('/signup', function(req, res) {
-    res.render('signup.ejs');
-  });
-
-  app.get('/changetemplate',function(req, res){
-    res.render('template_index.ejs',{
-      user: req.user
-    });
-  });
 
   app.all('/instructor', function(req, res) {
     if (!req.user) { return res.redirect('/login'); }
@@ -222,8 +216,8 @@ req.user.topics = items;
 
   });
 
-  app.get('/qna', function(req, res){
-    res.render('QnA.ejs', {question_idxs: req.q_idxs});   
+  app.get('/login', function(req, res) {
+    res.render('login.ejs');
   });
 
   app.get('/proncon', function(req, res){
@@ -232,87 +226,109 @@ req.user.topics = items;
     });
   });
 
-  // Facebook authentication
-  // app.get('/auth/facebook', passport.authenticate('facebook', { scope : 'email' }));
+  app.get('/qna', function(req, res){
+    res.render('QnA.ejs', {question_idxs: req.q_idxs});   
+  });
 
-  // app.get('/auth/facebook/callback', passport.authenticate('facebook', {
-  //   successRedirect : '/home',
-  //   failureRedirect : '/login'
-  // }));
+  app.get('/signup', function(req, res) {
+    res.render('signup.ejs');
+  });
 
-app.post('/userlogin', function(req, res, next){
-  // passport.authenticate('local', function(err, user, info) {
-  //   if (err) { return next(err); }
-  //   if (!user) { return res.redirect('/login'); }
-  //   req.logIn(user, function(err) {
-  //     if (err) { return next(err); }
-  //     return res.redirect('/home');
-  //   });
-  // })(req, res, next); 
-  passport.authenticate('ldapauth', {session: false}, function(err, user, info){
-    if(err) {
-      return next(err);
-    }
-
-    if (!user) {
-      console.log("Your password is incorrect");
-      return res.redirect('/home');
-    }
-    console.log('enter ldapauth, the user who is logged is listed as follows:');
-      console.dir(user);
-      User.findOne({username:user.uid}, function(err,result){
-        if(err){
-          console.log("there is an err in User.findOne for PSU account log in");
-          console.err(err);
-        }
-        console.log("the result is" + result);
-        if(!result){
-          var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:[  "The right to be forgotten",  "Future of Work",  "Reviving Community" ],role:user.title});
-          localUser.save(function(err, newuser){
-            if(err) return console.error(err);
-            console.log("user is saved");
-
-            req.logIn(newuser, function(err) {
-              console.log("enter req.logIn");
-              if (err) { 
-                console.log("enter err!!! in req.logIn"); 
-                console.log("the err is " + err);
-                return next(err); 
-              }
-              else return res.redirect('/home');
-            });
-
-          });
-        }
-        else {
-          console.log("user is existing");
-          req.logIn(result, function(err) {
-            console.log("enter req.logIn");
-            if (err) { 
-              console.log("enter err!!! in req.logIn"); 
-              console.log("the err is " + err);
-              return next(err); 
-            }
-            else return res.redirect('/home');
-          });
-        }
+  app.post('/userlogin', function(req, res, next){
+    passport.authenticate('local', function(err, user, info) {
+      if (err) { return next(err); }
+      if (!user) { return res.redirect('/login'); }
+      req.logIn(user, function(err) {
+        if (err) { return next(err); }
+        var newAct = new UserAct({
+          type: "User login",
+          username: user.username
+        });
+        newAct.save(function(err,nact){
+          if(err){
+            console.err(err);
+            console.log("err occurs when saving new user act");
+          }
+          console.log("new useract added");
+        });
+        return res.redirect('/home');
       });
+    })(req, res, next); 
+  // passport.authenticate('ldapauth', {session: false}, function(err, user, info){
+  //   if(err) {
+  //     return next(err);
+  //   }
 
-console.log("after auth, what is the req and res");
-})(req, res, next);
+  //   if (!user) {
+  //     console.log("Your password is incorrect");
+  //     return res.redirect('/home');
+  //   }
+  //   console.log('enter ldapauth, the user who is logged is listed as follows:');
+  //   console.dir(user);
+  //   User.findOne({username:user.uid}, function(err,result){
+  //     if(err){
+  //       console.log("there is an err in User.findOne for PSU account log in");
+  //       console.err(err);
+  //     }
+  //     console.log("the result is" + result);
+  //     if(!result){
+  //       var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:[  "The right to be forgotten",  "Future of Work",  "Reviving Community" ],role:user.title});
+  //       localUser.save(function(err, newuser){
+  //         if(err) return console.error(err);
+  //         console.log("user is saved");
+
+  //         req.logIn(newuser, function(err) {
+  //           console.log("enter req.logIn");
+  //           if (err) { 
+  //             console.log("enter err!!! in req.logIn"); 
+  //             console.log("the err is " + err);
+  //             return next(err); 
+  //           }
+  //           else return res.redirect('/home');
+  //         });
+
+  //       });
+  //     }
+  //     else {
+  //       console.log("user is existing");
+  //       req.logIn(result, function(err) {
+  //         console.log("enter req.logIn");
+  //         if (err) { 
+  //           console.log("enter err!!! in req.logIn"); 
+  //           console.log("the err is " + err);
+  //           return next(err); 
+  //         }
+  //         else return res.redirect('/home');
+  //       });
+  //     }
+  //   });
+
+  // console.log("after auth, what is the req and res");
+  // })(req, res, next);
 });
 
 app.get('/home', isLoggedIn, function (req, res) {
   console.log("home in router is " + req.session.passport.user);
+  var newAct = new UserAct({
+    username: req.user.username,
+    type: "User enter home page"
+  });
+  newAct.save(function(err,nact){
+    if(err){
+      console.err(err);
+      console.log("err occurs when saving new user act");
+    }
+    console.log("new useract added");
+  });
   User.findOne({username: req.user.toObject().username},'topics',function(err,user){
     if(err) handleError(err);
     console.dir(user.topics[0]);
     console.log("this is after logging in!");
     res.render('index.ejs', {
       user: req.user.toObject(),
-      topics:user.topics
+      topics:req.user.topics
     });
-  })
+  });
   
 });
 
@@ -337,7 +353,7 @@ app.get('/checkExistAvatar', function(req, res){
       res.send({resp:resp});
     }
   });
-})
+});
 
 app.get('/SaveScreenName/:avatarname', function(req,res) {
   console.log("req.user is "+ req.user);
@@ -353,9 +369,66 @@ app.get('/SaveScreenName/:avatarname', function(req,res) {
 
 app.get('/logout', function(req, res) {
   console.log('log out');
+  var newAct = new UserAct({
+    username: req.user.username,
+    type: "User log out"
+  });
+  newAct.save(function(err,nact){
+    if(err){
+      console.err(err);
+      console.log("err occurs when saving new user act");
+    }
+    console.log("new useract added");
+  });
   req.logout();
+  
   res.redirect('/login');
 });
+
+app.put('/userleft', function(req, res) {
+  var params = req.body;
+  var items = req.user.toObject().lastSnap?req.user.toObject().lastSnap:[];
+  // var index = items.indexOf(params.lasttopic);
+  // if (index != -1) {
+  //   items[index] = newtopic;
+  //   console.dir(items);
+  // }
+  // else {
+  //   items.push({topic:params.lasttopic, content:params.lastSnap})
+  // }
+  var i = 0, flag =false;
+  for ( i = 0; i < items.length; i++ ) {
+    if(items[i].topic == params.lasttopic){
+      items[i].content = params.lastSnap;
+      flag = true;
+    }
+  }
+  if(i == 0 || !flag) {
+    items.push({topic:params.lasttopic, content:params.lastSnap});
+    console.log("lastSnap updated");
+  }
+  else console.log("the i is " + i);
+
+  User.update({'username': req.user.username},{lasttopic: params.lasttopic, lastSnap: items} ,{upsert:false},function(err,raw){
+    if(err) {
+      console.log("error:" + err);
+      return handleError(err);
+    }
+    console.log('update LastSnap', raw);
+  });
+  var newAct = new UserAct({
+    username: req.user.username,
+    type: "User left"
+  });
+  newAct.save(function(err,nact){
+    if(err){
+      console.err(err);
+      console.log("err occurs when saving new user act");
+    }
+    console.log("new useract added");
+  });
+});
+
 }
 
 function isLoggedIn(req, res, next) {
@@ -364,48 +437,5 @@ function isLoggedIn(req, res, next) {
     return next();
   }
 
-  res.redirect('/');
+  res.redirect('/login');
 }
-
-function timeSince(date) {
-  if (typeof date !== 'object') {
-    date = new Date(date);
-  }
-  console.log("enter timeSince function");
-  var seconds = Math.floor((new Date() - date) / 1000);
-  var intervalType;
-
-  var interval = Math.floor(seconds / 31536000);
-  if (interval >= 1) {
-    intervalType = 'year';
-  } else {
-    interval = Math.floor(seconds / 2592000);
-    if (interval >= 1) {
-      intervalType = 'month';
-    } else {
-      interval = Math.floor(seconds / 86400);
-      if (interval >= 1) {
-        intervalType = 'day';
-      } else {
-        interval = Math.floor(seconds / 3600);
-        if (interval >= 1) {
-          intervalType = "hour";
-        } else {
-          interval = Math.floor(seconds / 60);
-          if (interval >= 1) {
-            intervalType = "minute";
-          } else {
-            interval = seconds;
-            intervalType = "second";
-          }
-        }
-      }
-    }
-  }
-
-  if (interval > 1 || interval === 0) {
-    intervalType += 's';
-  }
-
-  return interval + ' ' + intervalType + " ago";
-};

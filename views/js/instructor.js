@@ -7,6 +7,17 @@ $('.updateoredit').click(function(e){
 
   if(valueholders[1].classList.contains('invisible')){
     console.log("Enter editing mode for topic");
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "Instructor enters editing mode",
+        username: GLOBAL.username
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
     valueholders[1].classList.remove("invisible");
     valueholders[3].classList.add("invisible");
     e.target.innerText = "Update";
@@ -29,6 +40,17 @@ $('.updateoredit').click(function(e){
         newtopic: newtopic
       }
     });
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "Instructor updates topic(s)",
+        username: GLOBAL.username
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
   }
 
 });
@@ -39,6 +61,18 @@ $('.btn-delete').click(function(e){
 
   var newtopic = valueholders[1].childNodes[1].childNodes[1].value.trim(),
   oldtopic = valueholders[3].innerText.trim();
+  $.ajax({
+      url: "/actsave",
+      data: {
+        type: "Instructor deletes topic(s)",
+        username: GLOBAL.username,
+        content:{oldtopic:oldtopic, newtopic:newtopic}
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
   $.ajax({
     url: "/ChangeTopic",
     method: "PUT",
@@ -64,6 +98,18 @@ $('.addtopicbtn').click(function(e){
   })
   .done(function(data){
     console.log('add topic');
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "Instructor adds topic(s)",
+        username: GLOBAL.username,
+        content: {newtopic: newtopic}
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
     var resultitem = document.createElement('div'), 
     uifocus = document.createElement('div'), 
     spanedit = document.createElement('span'), spandisplay = document.createElement('span'),
@@ -88,7 +134,7 @@ $('.addtopicbtn').click(function(e){
     $('#topics')[0].appendChild(resultitem);
     e.target.parentNode.childNodes[3].value = null;
   });
-  
+
 })
 
 

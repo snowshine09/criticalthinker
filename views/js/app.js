@@ -11,7 +11,6 @@
   // Load procon data from server
   var proconData = {},
   dataReady = false;
-  // GLOBAL.topic = $(".topic-bar span").text() == "Select Topics" ? "The right to be forgotten":$(".topic-bar span").text();
 
   function fetchData(secondcallback, callback) {
     if($(".topic-bar span").length==0){
@@ -45,12 +44,6 @@
         callback();
       }
     });
-    // var interval = setInterval(function () {
-    //   if (dataReady === true) {
-    //     clearInterval(interval);
-    //     return proconData;
-    //   }
-    // }, 5);
 }
 function init(callback) {
   console.log('procon init');
@@ -125,12 +118,6 @@ function resetDataReady(){
 function getProConData() {
   dataReady = false;
   fetchData(null,fetchDatawTopic);
-    // var interval = setInterval(function () {
-    //   if (dataReady === true) {
-    //     clearInterval(interval);
-    //     return proconData;
-    //   }
-    // }, 5);
 }
 
 function updateServerProCon() {
@@ -183,6 +170,7 @@ var proconView = (function($) {
     $('span.chathistory-dock-right').unbind('click');
     $('.helptour').unbind('click');
     $('.usersetting').unbind('click');
+    $(".chathistory-dock-right.btn").unbind('click');
   }
 
   function registerEvents() {
@@ -191,22 +179,40 @@ var proconView = (function($) {
       $('.claim.title').each(function(){
         $(this).accordion('close');
       });
+      $.ajax({
+        url: "/actsave",
+        data: {
+          type: "Collapse all claim pairs",
+          topic: GLOBAL.topic,
+          username: GLOBAL.username
+        },
+        method: "PUT"
+      })
+      .done(function(data){
+        console.log('act saved');
+      });
     });
     $('#expandAllButton').click(function(e) {
       $('.claim.title').each(function(){
         $(this).accordion('open');
       });
+      $.ajax({
+        url: "/actsave",
+        data: {
+          type: "Expand all claim pairs",
+          topic: GLOBAL.topic,
+          username: GLOBAL.username
+        },
+        method: "PUT"
+      })
+      .done(function(data){
+        console.log('act saved');
+      });
     });
 
     $('.pro .dropdown.icon').click(function(e) {
-      // Preventing icon click, which will mess up the interface.
-      e.stopPropagation();
-    });
-    $('.con .dropdown.icon').click(function(e) {
-      // Preventing icon click, which will mess up the interface.
-      e.stopPropagation();
-    });
-    $('.pro .claim.title').click(function(event) {
+
+      e.stopPropagation();// Preventing icon click, which will mess up the interface.
       var proClaimTitles = $('.pro .claim.title');
       var proClaimIndex = proClaimTitles.index(event.target);
 
@@ -222,13 +228,41 @@ var proconView = (function($) {
       }
       if (whetherActive) {
         $(conClaimTitles[conClaimIndex]).accordion('close');
+        $.ajax({
+          url: "/actsave",
+          data: {
+            type: "collapse a claim pair by clicking PRO",
+            topic: GLOBAL.topic,
+            username: GLOBAL.username,
+            content: "the index of the collapsed claim is "+ proClaimIndex
+          },
+          method: "PUT"
+        })
+        .done(function(data){
+          console.log('act saved');
+        });
       } else {
         $(conClaimTitles[conClaimIndex]).accordion('open');
+        
+        $.ajax({
+          url: "/actsave",
+          data: {
+            type: "expand a claim pair by clicking PRO",
+            topic: GLOBAL.topic,
+            username: GLOBAL.username,
+            content: "the index of the collapsed claim is "+ proClaimIndex
+          },
+          method: "PUT"
+        })
+        .done(function(data){
+          console.log('act saved');
+        });
       }
     });
+$('.con .dropdown.icon').click(function(e) {
 
-    $('.con .claim.title').click(function(event) {
-      var conClaimTitles = $('.con .claim.title');
+  e.stopPropagation();
+      var conClaimTitles = $('.con .claim.title');// Preventing icon click, which will mess up the interface.
       var conClaimIndex = conClaimTitles.index(event.target);
 
       var proClaimTitles = $('.pro .claim.title');
@@ -243,61 +277,242 @@ var proconView = (function($) {
       }
       if (whetherActive) {
         $(proClaimTitles[proClaimIndex]).accordion('close');
-      } else {
-        $(proClaimTitles[proClaimIndex]).accordion('open');
-      }     
-    });
-
-    $('.ui.dropdown')
-    .dropdown({
-      onChange: function(val){
-        proconModel.resetDataReady();
-        GLOBAL.topic = val;
-        proconModel.init(proconController.initializeView);
-      }
-    });
-
-    $('ui.sticky')
-    .sticky({
-      context: '#historycontext'
-    });
-    
-
-
-    var historyBtn = document.getElementsByClassName('chathistory-dock-right btn')[0], Chatcontent = document.getElementsByClassName('chathistory-dock-right content')[0];
-    historyBtn.addEventListener('click', function(e){
-      e.preventDefault();
-
-      if($(Chatcontent).css('display')==='none'){
         $.ajax({
-          url: "/chathistory/"+GLOBAL.topic,
-          method: "GET"
+          url: "/actsave",
+          data: {
+            type: "collapse a claim pair by clicking CON",
+            topic: GLOBAL.topic,
+            username: GLOBAL.username,
+            content: { index: proClaimIndex }
+          },
+          method: "PUT"
         })
         .done(function(data){
-          document.getElementsByClassName('chathistory-dock-right content')[0].innerHTML = data;
-          $(Chatcontent).show();
-          var closechatBtn = document.getElementsByClassName('closechat')[0];
-          closechatBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            $(Chatcontent).hide();
-            $(Chatcontent).removeClass("visible");
-            while(Chatcontent.firstChild) {
-              Chatcontent.removeChild(Chatcontent.firstChild);
-            };
-          }, false);
+          console.log('act saved');
         });
+      } else {
+        $(proClaimTitles[proClaimIndex]).accordion('open');
+        $.ajax({
+          url: "/actsave",
+          data: {
+            type: "expand a claim pair by clicking CON",
+            topic: GLOBAL.topic,
+            username: GLOBAL.username,
+            content: { index: proClaimIndex }
+          },
+          method: "PUT"
+        })
+        .done(function(data){
+          console.log('act saved');
+        });
+      }     
+    });
+$('.pro .claim.title').click(function(event) {
+  var proClaimTitles = $('.pro .claim.title');
+  var proClaimIndex = proClaimTitles.index(event.target);
+
+  var conClaimTitles = $('.con .claim.title');
+  var conClaimIndex = proClaimIndex;
+  var classList = conClaimTitles[conClaimIndex].className.split(/\s+/);
+  var whetherActive = false;
+  for (var i = 0; i < classList.length; i += 1) {
+    if (classList[i] === 'active') {
+      whetherActive = true;
+      break;
+    }
+  }
+  if (whetherActive) {
+    $(conClaimTitles[conClaimIndex]).accordion('close');
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "collapse a claim pair by clicking PRO",
+        topic: GLOBAL.topic,
+        username: GLOBAL.username,
+        content: "the index of the collapsed claim is "+ proClaimIndex
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
+  } else {
+    $(conClaimTitles[conClaimIndex]).accordion('open');
+
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "expand a claim pair by clicking PRO",
+        topic: GLOBAL.topic,
+        username: GLOBAL.username,
+        content: "the index of the collapsed claim is "+ proClaimIndex
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
+  }
+});
+
+$('.con .claim.title').click(function(event) {
+  var conClaimTitles = $('.con .claim.title');
+  var conClaimIndex = conClaimTitles.index(event.target);
+
+  var proClaimTitles = $('.pro .claim.title');
+  var proClaimIndex = conClaimIndex;
+  var classList = conClaimTitles[proClaimIndex].className.split(/\s+/);
+  var whetherActive = false;
+  for (var i = 0; i < classList.length; i += 1) {
+    if (classList[i] === 'active') {
+      whetherActive = true;
+      break;
+    }
+  }
+  if (whetherActive) {
+    $(proClaimTitles[proClaimIndex]).accordion('close');
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "collapse a claim pair by clicking CON",
+        topic: GLOBAL.topic,
+        username: GLOBAL.username,
+        content: { index: proClaimIndex }
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
+  } else {
+    $(proClaimTitles[proClaimIndex]).accordion('open');
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "expand a claim pair by clicking CON",
+        topic: GLOBAL.topic,
+        username: GLOBAL.username,
+        content: { index: proClaimIndex }
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
+  }     
+});
+
+$('.ui.dropdown')
+.dropdown({
+  onChange: function(val){
+    if(val) {
+     $.ajax({
+      url: "/actsave",
+      data: {
+        type: "switch topic",
+        topic: GLOBAL.topic,
+        username: GLOBAL.username,
+        content: {newtopic: val}
+      },
+      method: "PUT"
+    })
+     .done(function(data){
+      console.log('act saved');
+    });
+   }
+
+   proconModel.resetDataReady();
+   GLOBAL.topic = val;
+   proconModel.init(proconController.initializeView);
+ }
+});
+
+
+
+$(".chathistory-dock-right.btn").on('click', function(e){
+  e.stopPropagation();
+  var Chatcontent = document.getElementsByClassName('chathistory-dock-right content')[0];
+  if($(Chatcontent).css('display')==='none'){
+    $.ajax({
+      url: "/chathistory/"+GLOBAL.topic,
+      method: "GET"
+    })
+    .done(function(data){
+      document.getElementsByClassName('chathistory-dock-right content')[0].innerHTML = data;
+      $(Chatcontent).show();
+      var closechatBtn = document.getElementsByClassName('closechat')[0];
+      closechatBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        $(Chatcontent).hide();
+        $(Chatcontent).removeClass("visible");
+        while(Chatcontent.firstChild) {
+          Chatcontent.removeChild(Chatcontent.firstChild);
+        };
+      }, false);
+    });
         // $(Chatcontent).transition('slide right');
+        $.ajax({
+          url: "/actsave",
+          data: {
+            type: "Open chathistory records",
+            topic: GLOBAL.topic,
+            username: GLOBAL.username
+          },
+          method: "PUT"
+        })
+        .done(function(data){
+          console.log('act saved');
+        });
 
       }
       else {
         $(Chatcontent).hide();
         $(Chatcontent).removeClass("visible");
+        $.ajax({
+          url: "/actsave",
+          data: {
+            type: "open chathistory records",
+            topic: GLOBAL.topic,
+            username: GLOBAL.username
+          },
+          method: "PUT"
+        })
+        .done(function(data){
+          console.log('act saved');
+        });
+        $.ajax({
+          url: "/actsave",
+          data: {
+            type: "Close chathistory records",
+            topic: GLOBAL.topic,
+            username: GLOBAL.username
+          },
+          method: "PUT"
+        })
+        .done(function(data){
+          console.log('act saved');
+        });
         while(Chatcontent.firstChild) {
           Chatcontent.removeChild(Chatcontent.firstChild);
         }
       }
-    }, false);
+    });
 
+
+window.onbeforeunload=function() {
+  alert("unload the page!");
+  $.ajax({
+    url: "/userleft",
+    method: "PUT",
+    data: {
+      lasttopic: GLOBAL.topic,
+      lastSnap: GLOBAL.savedData
+    }
+  })
+  .done(function(data){
+    console.log("userleft, byebye");
+  });
+};
 
 $.ajax({
   url: "/getusername",
@@ -323,29 +538,38 @@ $.ajax({
   },
 })
 .done(function(data){
-      // console.log("checked avatar exists or not! data.resp is ");
-      //console.dir(data);
-      if(!data.resp.exist) {
-        $.ajax({
-          url: "/SaveScreenName/"+TogetherJS.config.get("getUserName"),
-          method: "GET",
-          error: function(xhr, desc, err) {
-            console.log(xhr);
-            console.log("Details0: " + desc + "\nError:" + err);
-          },
-        })
-        .done(function(data){
-          console.log('save screenname success!'+data);
-          console.dir(data);
-
-        });
-      }
-      else {
-        TogetherJS.config("getUserName", data.resp.avatarname); 
-      }
+  if(!data.resp.exist) {
+    $.ajax({
+      url: "/SaveScreenName/"+TogetherJS.config.get("getUserName"),
+      method: "GET",
+      error: function(xhr, desc, err) {
+        console.log(xhr);
+        console.log("Details0: " + desc + "\nError:" + err);
+      },
+    })
+    .done(function(data){
+      console.log('save screenname success!'+data);
+      console.dir(data);
     });
+  }
+  else {
+    TogetherJS.config("getUserName", data.resp.avatarname); 
+  }
+});
 
 document.getElementsByClassName('helptour')[0].addEventListener('click',function(e){
+  $.ajax({
+    url: "/actsave",
+    data: {
+      type: "Start a helptour",
+      topic: GLOBAL.topic,
+      username: GLOBAL.username
+    },
+    method: "PUT"
+  })
+  .done(function(data){
+    console.log('act saved');
+  });
   var intro = introJs();
   intro.setOptions({
     steps: [
@@ -371,12 +595,12 @@ document.getElementsByClassName('helptour')[0].addEventListener('click',function
     },
     {
       element: document.querySelectorAll('.editor.ace_editor')[0],
-      intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the hand",
+      intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the black add button",
       position: 'bottom'
     },
     {
       element: document.querySelectorAll('.claimIcon.row')[0],
-      intro: 'Click the Hand to add more backings to back up the above proposition'
+      intro: 'Click the Black Plus Button to add more backings to back up the above proposition'
     },
     {
       element: document.querySelectorAll('.supporting')[0],
@@ -414,6 +638,18 @@ document.getElementsByClassName("usersetting")[0].addEventListener("click",funct
   .done(function(data){
     console.log("enter instructor");
   });
+  $.ajax({
+    url: "/actsave",
+    data: {
+      type: "Enter Topic Management",
+      topic: GLOBAL.topic,
+      username: GLOBAL.username
+    },
+    method: "PUT"
+  })
+  .done(function(data){
+    console.log('act saved');
+  });
 },false);
 
 
@@ -448,174 +684,236 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
   aceEditor.renderer.setShowGutter(false);
   aceEditor.setHighlightActiveLine(false);
 
-    // aceEditor.setValue(contentString)
-    // var changed = false;
-    aceEditor.on('change', function(event, sender){
 
-      var updatedContent = sender.getSession().getValue();
-      // if (argumentType === 'claim') {
-      //   proconController.updateProConAtIndex(side, proconIndex, updatedContent);
-      // } else if(argumentType == 'support'){
-      //   proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
-      // }
-      GLOBAL.changed = true;
-      clearTimeout(GLOBAL.timeout);
+  aceEditor.on('change', function(event, sender){
+
+    var updatedContent = sender.getSession().getValue();
+    GLOBAL.changed = true;
+    clearTimeout(GLOBAL.timeout);
       GLOBAL.timeout = setTimeout(autoSave,1000,updatedContent,sender); //you can set the autosave intervals to enhance the performance, currently set to 1s
-    });
-    // $("#"+editor.id).data('editor',aceEditor);
-    
+    });    
 
-    var autoSave = function(updatedContent,sender){
-      var savedContent = argumentType === 'claim'?GLOBAL.savedData[side][proconIndex].content:GLOBAL.savedData[side][proconIndex].support[index].content;
-      if (GLOBAL.changed && updatedContent != savedContent)
-      {
-        // alert('different now!');
-        console.log('updatedContent='+updatedContent);
-        console.log('sender.content='+sender.getSession().getValue());
-        console.log('savedData = '+ savedContent);
-        if (argumentType === 'claim') {
-          proconController.updateProConAtIndex(side, proconIndex, updatedContent);
-        } else if(argumentType == 'support'){
-          proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);          
-        }
-        GLOBAL.changed = false;
-        console.log('autosaved: ' + updatedContent);
+  var autoSave = function(updatedContent,sender){
+    var savedContent = argumentType === 'claim'?GLOBAL.savedData[side][proconIndex].content:GLOBAL.savedData[side][proconIndex].support[index].content;
+    if (GLOBAL.changed && updatedContent != savedContent)
+    {
+      $.ajax({
+        url: "/actsave",
+        data: {
+          type: "Autosave User Input",
+          topic: GLOBAL.topic,
+          username: GLOBAL.username,
+          content: {argumentType:argumentType, update: updatedContent}
+        },
+        method: "PUT"
+      })
+      .done(function(data){
+        console.log('act saved');
+      });
+      console.log('updatedContent='+updatedContent);
+      console.log('sender.content='+sender.getSession().getValue());
+      console.log('savedData = '+ savedContent);
+      if (argumentType === 'claim') {
+        proconController.updateProConAtIndex(side, proconIndex, updatedContent);
+      } else if(argumentType == 'support'){
+        proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);          
       }
-    };
-
-    function update() {
-      var shouldShow = !aceEditor.session.getValue().length;
-      var node = aceEditor.renderer.emptyMessageNode;
-      if (!shouldShow && node) {
-        aceEditor.renderer.scroller.removeChild(aceEditor.renderer.emptyMessageNode);
-        aceEditor.renderer.emptyMessageNode = null;
-      } else if (shouldShow && !node) {
-        node = aceEditor.renderer.emptyMessageNode = document.createElement("div");
-        if(argumentType == "claim") node.textContent = "Edit here to compose a "+ side.toUpperCase() + " claim";
-        else if(argumentType == "support") node.textContent = "Edit here to compose a "+ side.toUpperCase() + " support";
-        node.className = "ace_invisible ace_emptyMessage"
-        node.style.padding = "0 9px"
-        aceEditor.renderer.scroller.appendChild(node);
-      }
+      GLOBAL.changed = false;
+      console.log('autosaved: ' + updatedContent);
     }
-    aceEditor.on("input", update);
-    setTimeout(update, 100);
-    
-    return content;
+  };
+
+  function update() {
+    var shouldShow = !aceEditor.session.getValue().length;
+    var node = aceEditor.renderer.emptyMessageNode;
+    if (!shouldShow && node) {
+      aceEditor.renderer.scroller.removeChild(aceEditor.renderer.emptyMessageNode);
+      aceEditor.renderer.emptyMessageNode = null;
+    } else if (shouldShow && !node) {
+      node = aceEditor.renderer.emptyMessageNode = document.createElement("div");
+      if(argumentType == "claim") node.textContent = "Edit here to compose a "+ side.toUpperCase() + " claim";
+      else if(argumentType == "support") node.textContent = "Edit here to compose a "+ side.toUpperCase() + " support";
+      node.className = "ace_invisible ace_emptyMessage"
+      node.style.padding = "0 9px"
+      aceEditor.renderer.scroller.appendChild(node);
+    }
   }
+  aceEditor.on("input", update);
+  setTimeout(update, 100);
 
-  function createFunctionButtons() {
-    var row = document.createElement('div');
-    row.className = 'row';
+  return content;
+}
 
-    var expandButton = document.createElement('div');
-    expandButton.className = "ui tiny button";
-    expandButton.appendChild(document.createTextNode('Expand'))
+function createFunctionButtons() {
+  var row = document.createElement('div');
+  row.className = 'row';
 
-    var addButton = document.createElement('div');
-    addButton.className = "ui tiny button";
-    addButton.appendChild(document.createTextNode('Add'))
+  var expandButton = document.createElement('div');
+  expandButton.className = "ui tiny button";
+  expandButton.appendChild(document.createTextNode('Expand'))
 
-    var removeButton = document.createElement('div');
-    removeButton.className = "ui red tiny button";
-    removeButton.appendChild(document.createTextNode('Remove'))
+  var addButton = document.createElement('div');
+  addButton.className = "ui tiny button";
+  addButton.appendChild(document.createTextNode('Add'))
 
-    row.appendChild(expandButton);
-    row.appendChild(addButton)
-    row.appendChild(removeButton);
+  var removeButton = document.createElement('div');
+  removeButton.className = "ui red tiny button";
+  removeButton.appendChild(document.createTextNode('Remove'))
 
-    return row;
-  }
+  row.appendChild(expandButton);
+  row.appendChild(addButton)
+  row.appendChild(removeButton);
 
-  function createFunctionIconsForClaim(side, idx) {
-    var row = document.createElement('div');
-    row.className = 'claimIcon row';
+  return row;
+}
 
-    var addIcon = document.createElement('i');
-    addIcon.className = 'large plus icon';    
+function createFunctionIconsForClaim(side, idx) {
+  var row = document.createElement('div');
+  row.className = 'claimIcon row';
 
-    addIcon.addEventListener('click', function(e){
+  var addIcon = document.createElement('i');
+  addIcon.className = 'large plus icon';    
 
-      proconController.addSupport(side, idx);
-      console.log('sending add supporting');
-      TogetherJS.send({
+  addIcon.addEventListener('click', function(e){
+    e.stopPropagation();
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "Add a new supporting for the " + idx + "th " + side + " claim",
         topic: GLOBAL.topic,
-       type: "addSupporting", 
-       side: side, 
-       index: idx});
-    }, false);
-
-    addIcon.setAttribute("data-content", "Add support to this claim.");
-
-    $(addIcon).popup({
-      hoverable: true
+        username: GLOBAL.username
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
     });
+    proconController.addSupport(side, idx);
+    console.log('sending add supporting');
+    TogetherJS.send({
+      topic: GLOBAL.topic,
+      type: "addSupporting", 
+      side: side, 
+      index: idx});
+  }, false);
 
-    row.appendChild(addIcon);
+  addIcon.setAttribute("data-content", "Add support to this claim.");
 
-    return row;
-  }
+  $(addIcon).popup({
+    hoverable: true
+  });
 
-  function createIconsforProConPair(idx){
-    var icons=[];
-    var removeIcon = document.createElement('i');
-    removeIcon.className = 'large red remove circle icon';
-    removeIcon.setAttribute("data-content", "Remove this pair of claims.");
-    removeIcon.addEventListener('click', function(){
-      proconController.deleteProCon(idx);
-      TogetherJS.send({
+  row.appendChild(addIcon);
+
+  return row;
+}
+
+function createIconsforProConPair(idx){
+  var icons=[];
+  var removeIcon = document.createElement('i');
+  removeIcon.className = 'large red remove circle icon';
+  removeIcon.setAttribute("data-content", "Remove this pair of claims.");
+  removeIcon.addEventListener('click', function(){
+    var proconPairRmBtns = $('.red.remove.circle.icon');
+    var proconRmIdx = proconPairRmBtns.index(event.target);
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "Remove one PRO CON pair",
         topic: GLOBAL.topic,
-        type: "deleteProConPair", 
-        index: idx});   
-    }, false);
-
-    $(removeIcon).popup({
-      hoverable: true
+        username: GLOBAL.username,
+        content: {removedIndex: idx, pro: GLOBAL.savedData.pro[idx].content, con: GLOBAL.savedData.con[idx].content}
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
     });
+    proconController.deleteProCon(idx);
+    TogetherJS.send({
+      topic: GLOBAL.topic,
+      type: "deleteProConPair", 
+      index: idx});   
+  }, false);
 
-    var addProConIcon = document.createElement('i');
-    addProConIcon.className = 'large teal plus circle icon';
-    addProConIcon.setAttribute("data-content", "Add a new pair of claims.");
-    addProConIcon.addEventListener('click', function(){
-     proconController.addProCon();
-     TogetherJS.send({
+  $(removeIcon).popup({
+    hoverable: true
+  });
+
+  var addProConIcon = document.createElement('i');
+  addProConIcon.className = 'large teal plus circle icon';
+  addProConIcon.setAttribute("data-content", "Add a new pair of claims.");
+  addProConIcon.addEventListener('click', function(e){
+
+    e.stopPropagation();
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "Add one PRO CON pair",
+        topic: GLOBAL.topic,
+        username: GLOBAL.username
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
+    });
+    proconController.addProCon();
+    TogetherJS.send({
       type: "addProConPair",
       topic: GLOBAL.topic
     });
-   }, false);
-    $(addProConIcon).popup({
-      hoverable: true
+  }, false);
+  $(addProConIcon).popup({
+    hoverable: true
+  });
+  icons.push(addProConIcon);
+  icons.push(removeIcon);
+  return icons;
+}
+
+function createFunctionIoncsForSupport(side, proconIdx, idx) {
+  var row = document.createElement('div');
+  row.className = 'supportIcon row';
+
+  var removeIcon = document.createElement('i');
+  removeIcon.className = 'large red remove icon';
+  removeIcon.setAttribute("data-content", "Remove this support/backing.");
+  $(removeIcon).popup({
+    hoverable: true
+  });
+
+  removeIcon.addEventListener("click", function(e){
+    $.ajax({
+      url: "/actsave",
+      data: {
+        type: "Remove one supporting",
+        topic: GLOBAL.topic,
+        username: GLOBAL.username,
+        content:{
+          removedPCIndex: proconIdx,//claim
+          removedIndex:idx,
+          support: GLOBAL.savedData[side][proconIdx].support[idx]
+        }
+      },
+      method: "PUT"
+    })
+    .done(function(data){
+      console.log('act saved');
     });
-    icons.push(addProConIcon);
-    icons.push(removeIcon);
-    return icons;
-  }
-
-  function createFunctionIoncsForSupport(side, proconIdx, idx) {
-    var row = document.createElement('div');
-    row.className = 'supportIcon row';
-
-    var removeIcon = document.createElement('i');
-    removeIcon.className = 'large red remove icon';
-    removeIcon.setAttribute("data-content", "Remove this support/backing.");
-    $(removeIcon).popup({
-      hoverable: true
-    });
-
-    removeIcon.addEventListener("click", function(e){
-     proconController.deleteSupport(side, proconIdx, idx);
-     console.log('fire togetherjs sync remove event');
-     TogetherJS.send({
+    proconController.deleteSupport(side, proconIdx, idx);
+    console.log('fire togetherjs sync remove event');
+    TogetherJS.send({
       type: "removeSupporting", 
       topic: GLOBAL.topic,
       side: side, 
       proconIndex: proconIdx, 
       index: idx});
-   }, false);
+  }, false);
 
-    row.appendChild(removeIcon);
-    return row;
-  }
+  row.appendChild(removeIcon);
+  return row;
+}
 
   // Supporting argument for claims
   function createSupport(side, proconIdx, idx, supportContent) {
@@ -643,7 +941,7 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
     var icons = createFunctionIconsForClaim(side, idx); //replace with your string.
     
 
-    var contentString = claimRaw.content.length==0 ? '':'...' + claimRaw.content.substring(maxLength);
+    var contentString = claimRaw.content.length==0 ? '':claimRaw.content;
     var content = createContent(contentString, side, idx, 0, "claim");
     var claim = document.createElement('div');
     var children = document.createElement('div');
@@ -735,53 +1033,29 @@ var proconController = (function ($) {
 
   function updateProConAtIndex(side, claimIdx, content) {
    proconModel.updateProConAtIndex(side, claimIdx, content);
-   initializeView();
  }
 
  function updateSupportingAtIndex(side, claimIdx, index, content){
    proconModel.updateSupportingAtIndex(side, claimIdx, index, content);
-   initializeView();
  }
 
  function initializeView() {
-  // proconModel.resetDataReady();
-  // var data = proconModel.getProConData();
+
   proconView.init(GLOBAL.savedData);
-  // var temp_interval = setInterval(function(){
-  //   if(typeof data != "undefined"){
 
-  //     clearInterval(temp_interval);
-  //   }
-  // }, 5);
+  $('.ui.accordion').accordion({
+    exclusive: false,
+    duration: 350,
+  });
 
+  $('.large.icon').css('cursor', 'pointer');
 
-$('.ui.accordion').accordion({
-  exclusive: false,
-  duration: 350,
-});
-
-$('.large.icon').css('cursor', 'pointer');
-
-TogetherJS.reinitialize();
+  TogetherJS.reinitialize();
 
 }
 
 proconModel.init(initializeView);
 
-// var interval = setInterval(function () {
-    // console.log('set interval');
-
-    // if (proconModel.getDataReady() === true) {
-    //   clearInterval(interval);
-
-      // initializeView();
-
-      /**
-       * collapse all claims and arguments
-       */
-       
-     // }
-   // }, 5);
 
 return {
  addSupport: addSupport,
