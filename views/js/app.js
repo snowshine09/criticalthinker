@@ -183,8 +183,7 @@ var proconView = (function($) {
         url: "/actsave",
         data: {
           type: "Collapse all claim pairs",
-          topic: GLOBAL.topic,
-          username: GLOBAL.username
+          topic: GLOBAL.topic
         },
         method: "PUT"
       })
@@ -200,8 +199,7 @@ var proconView = (function($) {
         url: "/actsave",
         data: {
           type: "Expand all claim pairs",
-          topic: GLOBAL.topic,
-          username: GLOBAL.username
+          topic: GLOBAL.topic
         },
         method: "PUT"
       })
@@ -233,7 +231,6 @@ var proconView = (function($) {
           data: {
             type: "collapse a claim pair by clicking PRO",
             topic: GLOBAL.topic,
-            username: GLOBAL.username,
             content: "the index of the collapsed claim is "+ proClaimIndex
           },
           method: "PUT"
@@ -249,7 +246,6 @@ var proconView = (function($) {
           data: {
             type: "expand a claim pair by clicking PRO",
             topic: GLOBAL.topic,
-            username: GLOBAL.username,
             content: "the index of the collapsed claim is "+ proClaimIndex
           },
           method: "PUT"
@@ -282,7 +278,6 @@ $('.con .dropdown.icon').click(function(e) {
           data: {
             type: "collapse a claim pair by clicking CON",
             topic: GLOBAL.topic,
-            username: GLOBAL.username,
             content: { index: proClaimIndex }
           },
           method: "PUT"
@@ -297,7 +292,6 @@ $('.con .dropdown.icon').click(function(e) {
           data: {
             type: "expand a claim pair by clicking CON",
             topic: GLOBAL.topic,
-            username: GLOBAL.username,
             content: { index: proClaimIndex }
           },
           method: "PUT"
@@ -328,7 +322,6 @@ $('.pro .claim.title').click(function(event) {
       data: {
         type: "collapse a claim pair by clicking PRO",
         topic: GLOBAL.topic,
-        username: GLOBAL.username,
         content: "the index of the collapsed claim is "+ proClaimIndex
       },
       method: "PUT"
@@ -344,7 +337,6 @@ $('.pro .claim.title').click(function(event) {
       data: {
         type: "expand a claim pair by clicking PRO",
         topic: GLOBAL.topic,
-        username: GLOBAL.username,
         content: "the index of the collapsed claim is "+ proClaimIndex
       },
       method: "PUT"
@@ -376,7 +368,6 @@ $('.con .claim.title').click(function(event) {
       data: {
         type: "collapse a claim pair by clicking CON",
         topic: GLOBAL.topic,
-        username: GLOBAL.username,
         content: { index: proClaimIndex }
       },
       method: "PUT"
@@ -391,7 +382,6 @@ $('.con .claim.title').click(function(event) {
       data: {
         type: "expand a claim pair by clicking CON",
         topic: GLOBAL.topic,
-        username: GLOBAL.username,
         content: { index: proClaimIndex }
       },
       method: "PUT"
@@ -411,7 +401,6 @@ $('.ui.dropdown')
       data: {
         type: "switch topic",
         topic: GLOBAL.topic,
-        username: GLOBAL.username,
         content: {newtopic: val}
       },
       method: "PUT"
@@ -455,8 +444,7 @@ $(".chathistory-dock-right.btn").on('click', function(e){
           url: "/actsave",
           data: {
             type: "Open chathistory records",
-            topic: GLOBAL.topic,
-            username: GLOBAL.username
+            topic: GLOBAL.topic
           },
           method: "PUT"
         })
@@ -472,8 +460,7 @@ $(".chathistory-dock-right.btn").on('click', function(e){
           url: "/actsave",
           data: {
             type: "open chathistory records",
-            topic: GLOBAL.topic,
-            username: GLOBAL.username
+            topic: GLOBAL.topic
           },
           method: "PUT"
         })
@@ -484,8 +471,7 @@ $(".chathistory-dock-right.btn").on('click', function(e){
           url: "/actsave",
           data: {
             type: "Close chathistory records",
-            topic: GLOBAL.topic,
-            username: GLOBAL.username
+            topic: GLOBAL.topic
           },
           method: "PUT"
         })
@@ -562,8 +548,7 @@ document.getElementsByClassName('helptour')[0].addEventListener('click',function
     url: "/actsave",
     data: {
       type: "Start a helptour",
-      topic: GLOBAL.topic,
-      username: GLOBAL.username
+      topic: GLOBAL.topic
     },
     method: "PUT"
   })
@@ -642,8 +627,7 @@ document.getElementsByClassName("usersetting")[0].addEventListener("click",funct
     url: "/actsave",
     data: {
       type: "Enter Topic Management",
-      topic: GLOBAL.topic,
-      username: GLOBAL.username
+      topic: GLOBAL.topic
     },
     method: "PUT"
   })
@@ -702,7 +686,6 @@ function createContent(contentString, side, proconIndex, index, argumentType) {
         data: {
           type: "Autosave User Input",
           topic: GLOBAL.topic,
-          username: GLOBAL.username,
           content: {argumentType:argumentType, update: updatedContent}
         },
         method: "PUT"
@@ -780,8 +763,7 @@ function createFunctionIconsForClaim(side, idx) {
       url: "/actsave",
       data: {
         type: "Add a new supporting for the " + idx + "th " + side + " claim",
-        topic: GLOBAL.topic,
-        username: GLOBAL.username
+        topic: GLOBAL.topic
       },
       method: "PUT"
     })
@@ -821,7 +803,6 @@ function createIconsforProConPair(idx){
       data: {
         type: "Remove one PRO CON pair",
         topic: GLOBAL.topic,
-        username: GLOBAL.username,
         content: {removedIndex: idx, pro: GLOBAL.savedData.pro[idx].content, con: GLOBAL.savedData.con[idx].content}
       },
       method: "PUT"
@@ -850,8 +831,7 @@ function createIconsforProConPair(idx){
       url: "/actsave",
       data: {
         type: "Add one PRO CON pair",
-        topic: GLOBAL.topic,
-        username: GLOBAL.username
+        topic: GLOBAL.topic
       },
       method: "PUT"
     })
@@ -889,7 +869,6 @@ function createFunctionIoncsForSupport(side, proconIdx, idx) {
       data: {
         type: "Remove one supporting",
         topic: GLOBAL.topic,
-        username: GLOBAL.username,
         content:{
           removedPCIndex: proconIdx,//claim
           removedIndex:idx,

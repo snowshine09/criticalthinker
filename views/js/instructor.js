@@ -10,8 +10,7 @@ $('.updateoredit').click(function(e){
     $.ajax({
       url: "/actsave",
       data: {
-        type: "Instructor enters editing mode",
-        username: GLOBAL.username
+        type: "Instructor enters editing mode"
       },
       method: "PUT"
     })
@@ -43,8 +42,7 @@ $('.updateoredit').click(function(e){
     $.ajax({
       url: "/actsave",
       data: {
-        type: "Instructor updates topic(s)",
-        username: GLOBAL.username
+        type: "Instructor updates topic(s)"
       },
       method: "PUT"
     })
@@ -65,7 +63,6 @@ $('.btn-delete').click(function(e){
       url: "/actsave",
       data: {
         type: "Instructor deletes topic(s)",
-        username: GLOBAL.username,
         content:{oldtopic:oldtopic, newtopic:newtopic}
       },
       method: "PUT"
@@ -102,7 +99,6 @@ $('.addtopicbtn').click(function(e){
       url: "/actsave",
       data: {
         type: "Instructor adds topic(s)",
-        username: GLOBAL.username,
         content: {newtopic: newtopic}
       },
       method: "PUT"

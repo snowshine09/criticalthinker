@@ -57,6 +57,7 @@ module.exports = function(app, passport) {
     var act = req.body;
     console.log("the req.body is");
     console.dir(act);
+    act.username = req.user.username;
     var newAct = new UserAct(act);
     newAct.save(function(err,nact){
       if(err){
