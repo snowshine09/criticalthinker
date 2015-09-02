@@ -9,8 +9,9 @@ var userSchema = mongoose.Schema({
     password: String,
     lastSnap: [{
         topic: String,
-        content: String
+        content: {}
     }],
+    lasttopic: String,
     topics: [String],
     role: String
 }, {collection:"user"});

@@ -52,7 +52,7 @@
   <script src="./js/app.js"></script>
   <script src="./js/sync.js"></script>
 </head>
-<body>
+<body id="indexpage">
   <div class="ui inverted menu">
     <div class="item welcome">
       Welcome to Critical Thinker<string> <%= user ? ', '+user.avatarname : ' ' %> </string>!
@@ -67,7 +67,7 @@
       <button class="ui button helptour"><i class="help icon"></i></button>
     </div>
 
-    <% if(user.role != "UNDERGRAD STUDENT") { %>
+    <% if(user.username == "jnk14" || user.username== "nzs162" || user.username=="euc18" || user.username=="jmc56" || user.username == "Diligent Dolphin") { %>
 
       <div class="item right">
         <button class="ui olive toggle button usersetting">
@@ -83,7 +83,7 @@
     </div>
     <div class="ui floating dropdown labeled search icon button">
       <i class="tasks icon"></i>
-      <span class="text">The right to be forgotten</span>
+      <span class="text"><%= user.lasttopic %></span>
       <div class="topic menu">
         <% for(var i=0; i<topics.length; i++) {%>
         <div class = "topic item"><%= topics[i] %></div>
