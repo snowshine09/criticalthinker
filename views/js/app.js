@@ -500,7 +500,6 @@ $(".chathistory-dock-right.btn").on('click', function(e){
 
 
 window.onbeforeunload=function() {
-  alert("unload the page!");
   $.ajax({
     url: "/userleft",
     method: "PUT",
