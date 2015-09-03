@@ -99,7 +99,7 @@ $('.addtopicbtn').click(function(e){
       url: "/actsave",
       data: {
         type: "Instructor adds topic(s)",
-        content: {newtopic: newtopic}
+        content: {newtopic: e.target.parentNode.childNodes[3].value}
       },
       method: "PUT"
     })
