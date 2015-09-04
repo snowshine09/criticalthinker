@@ -456,17 +456,7 @@ $(".chathistory-dock-right.btn").on('click', function(e){
       else {
         $(Chatcontent).hide();
         $(Chatcontent).removeClass("visible");
-        $.ajax({
-          url: "/actsave",
-          data: {
-            type: "open chathistory records",
-            topic: GLOBAL.topic
-          },
-          method: "PUT"
-        })
-        .done(function(data){
-          console.log('act saved');
-        });
+   
         $.ajax({
           url: "/actsave",
           data: {

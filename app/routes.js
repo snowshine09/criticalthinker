@@ -57,6 +57,7 @@ module.exports = function(app, passport) {
     var act = req.body;
     console.log("the req.body is");
     console.dir(act);
+    console.log(Date.now());
     act.username = req.user.username;
     var newAct = new UserAct(act);
     newAct.save(function(err,nact){
@@ -65,7 +66,9 @@ module.exports = function(app, passport) {
         console.log("err occurs when saving new user act");
       }
       console.log("new useract added");
+      console.log(Date.now());
     });
+    res.send({"move":"act saved"});
   });
 
   app.get('/all_procons/:topic', function(req, res) {
@@ -214,7 +217,7 @@ req.user.topics = items;
         topics: data.topics
       });
     });
-
+    
   });
 
   app.get('/login', function(req, res) {
@@ -273,59 +276,64 @@ passport.authenticate('ldapauth', {session: false}, function(err, user, info){
     }
     console.log("the result is" + result);
     if(!result){
-      var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:[  "The right to be forgotten",  "Future of Work",  "Reviving Community" ],role:user.title});
-      localUser.save(function(err, newuser){
-        if(err) return console.error(err);
-        console.log("user is saved");
+      User.findOne({username: "nzs162"},'topics',function(err,olduser){
+        if(err) handleError(err);
+        console.log("new user, topics based on Na's topics");
+        var localUser = new User({avatarname:user.displayName, username:user.uid, email: user.mail, topics:olduser.topics,role:user.title});
+        localUser.save(function(err, newuser){
+          if(err) return console.error(err);
+          console.log("user is saved");
 
-        req.logIn(newuser, function(err) {
-          console.log("enter req.logIn");
-          
-          if (err) { 
-            console.log("enter err!!! in req.logIn"); 
-            console.log("the err is " + err);
-            return next(err); 
-          }
-          var newAct = new UserAct({
-            type: "User login",
-            username: newuser.username
-          });
-          newAct.save(function(err,nact){
-            if(err){
-              console.err(err);
-              console.log("err occurs when saving new user act");
+          req.logIn(newuser, function(err) {
+            console.log("enter req.logIn");
+
+            if (err) { 
+              console.log("enter err!!! in req.logIn"); 
+              console.log("the err is " + err);
+              return next(err); 
             }
-            console.log("new useract added");
+            var newAct = new UserAct({
+              type: "User login",
+              username: newuser.username
+            });
+            newAct.save(function(err,nact){
+              if(err){
+                console.err(err);
+                console.log("err occurs when saving new user act");
+              }
+              console.log("new useract added");
+            });
+            return res.redirect('/home');
           });
-          return res.redirect('/home');
-        });
 
-      });
-    }
-    else {
-      console.log("user is existing");
-      req.logIn(result, function(err) {
-        console.log("enter req.logIn");
-        var newAct = new UserAct({
-          type: "User login",
-          username: result.username
         });
-        newAct.save(function(err,nact){
-          if(err){
-            console.err(err);
-            console.log("err occurs when saving new user act");
-          }
-          console.log("new useract added");
-        });
-        if (err) { 
-          console.log("enter err!!! in req.logIn"); 
-          console.log("the err is " + err);
-          return next(err); 
-        }
-        else return res.redirect('/home');
       });
+
+}
+else {
+  console.log("user is existing");
+  req.logIn(result, function(err) {
+    console.log("enter req.logIn");
+    var newAct = new UserAct({
+      type: "User login",
+      username: result.username
+    });
+    newAct.save(function(err,nact){
+      if(err){
+        console.err(err);
+        console.log("err occurs when saving new user act");
+      }
+      console.log("new useract added");
+    });
+    if (err) { 
+      console.log("enter err!!! in req.logIn"); 
+      console.log("the err is " + err);
+      return next(err); 
     }
+    else return res.redirect('/home');
   });
+}
+});
 
 console.log("after auth, what is the req and res");
 })(req, res, next);
@@ -412,14 +420,7 @@ app.get('/logout', function(req, res) {
 app.put('/userleft', function(req, res) {
   var params = req.body;
   var items = req.user.toObject().lastSnap?req.user.toObject().lastSnap:[];
-  // var index = items.indexOf(params.lasttopic);
-  // if (index != -1) {
-  //   items[index] = newtopic;
-  //   console.dir(items);
-  // }
-  // else {
-  //   items.push({topic:params.lasttopic, content:params.lastSnap})
-  // }
+
   var i = 0, flag =false;
   for ( i = 0; i < items.length; i++ ) {
     if(items[i].topic == params.lasttopic){
@@ -451,6 +452,7 @@ app.put('/userleft', function(req, res) {
     }
     console.log("new useract added");
   });
+  res.send(200, {"act":"user left"});
 });
 
 }
