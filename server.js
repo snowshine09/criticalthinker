@@ -1,6 +1,6 @@
 var express = require('express'),
 app = express(),
-port = 8070,
+port = 8110,
 mongoose = require('mongoose'),
 passport = require('passport'),
 flash = require('connect-flash'),
@@ -13,7 +13,7 @@ configDB = require('./config/database.js'),
 http = require('http');
 
 
-require('longjohn');
+//require('longjohn');
 
 
 mongoose.connect(configDB.url);
