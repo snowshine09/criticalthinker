@@ -286,8 +286,8 @@ var requirejs, require, define;
                     //CommonJS module spec 1.1
                     cjsModule = args[i] = handlers.module(name);
                 } else if (hasProp(defined, depName) ||
-                 hasProp(waiting, depName) ||
-                 hasProp(defining, depName)) {
+                   hasProp(waiting, depName) ||
+                   hasProp(defining, depName)) {
                     args[i] = callDep(depName);
                 } else if (map.p) {
                     map.p.load(map.n, makeRequire(relName, true), makeLoad(depName), {});
@@ -1386,7 +1386,7 @@ _receiveMessage: function (event) {
   }
   if (this.expectedOrigin && event.origin != this.expectedOrigin) {
       console.info("Expected message from", this.expectedOrigin,
-         "but got message from", event.origin);
+       "but got message from", event.origin);
       return;
   }
   if (! this.expectedOrigin) {
@@ -1457,7 +1457,7 @@ _receiveMessage: function (event) {
         event.origin != this.expectedOrigin) {
       // FIXME: Maybe not worth mentioning?
   console.info("Expected message from", this.expectedOrigin,
-     "but got message from", event.origin);
+   "but got message from", event.origin);
   return;
 }
 if (! this.expectedOrigin) {
@@ -2036,7 +2036,7 @@ function initShareId() {
   } else if (findRoom && (! saved) && (! TogetherJS.startup._joinShareId)) {
       assert(findRoom.prefix && typeof findRoom.prefix == "string", "Bad findRoom.prefix", findRoom);
       assert(findRoom.max && typeof findRoom.max == "number" && findRoom.max > 0,
-       "Bad findRoom.max", findRoom);
+         "Bad findRoom.max", findRoom);
       sessionId = util.generateId();
       if (findRoom.prefix.search(/[^a-zA-Z0-9]/) != -1) {
         console.warn("Bad value for findRoom.prefix:", JSON.stringify(findRoom.prefix));
@@ -2723,7 +2723,7 @@ peers.getPeer = function getPeer(id, message, ignoreMissing) {
   assert(peer, "No peer with id:", id);
   if (message &&
     (message.type == "hello" || message.type == "hello-back" ||
-       message.type == "peer-update")) {
+     message.type == "peer-update")) {
       peer.updateFromHello(message);
   peer.view.update();
 }
@@ -3217,16 +3217,16 @@ return linkify;
 
     // If input is already a tinycolor, return itself
     if (typeof color == "object" && color.hasOwnProperty("_tc_id")) {
-     return color;
- }
+       return color;
+   }
 
- var rgb = inputToRGB(color);
- var r = rgb.r,
- g = rgb.g,
- b = rgb.b,
- a = rgb.a,
- roundA = mathRound(100*a) / 100,
- format = rgb.format;
+   var rgb = inputToRGB(color);
+   var r = rgb.r,
+   g = rgb.g,
+   b = rgb.b,
+   a = rgb.a,
+   roundA = mathRound(100*a) / 100,
+   format = rgb.format;
 
     // Don't let the range of [0,255] come back in [0,1].
     // Potentially lose a little bit of precision here, but will fix issues where
@@ -4098,32 +4098,32 @@ elementFinder.elementLocation = function elementLocation(el) {
       el = el[0];
   }
   if (el.id) {
-      return "#" + el.id;
-  }
-  if (el.tagName == "BODY") {
-      return "body";
-  }
-  if (el.tagName == "HEAD") {
-      return "head";
-  }
-  if (el === document) {
-      return "document";
-  }
-  var parent = el.parentNode;
-  if ((! parent) || parent == el) {
-      console.warn("elementLocation(", el, ") has null parent");
-      throw new Error("No locatable parent found");
-  }
-  var parentLocation = elementLocation(parent);
-  var children = parent.childNodes;
-  var _len = children.length;
-  var index = 0;
-  for (var i=0; i<_len; i++) {
-      if (children[i] == el) {
-        break;
-    }
-    if (children[i].nodeType == document.ELEMENT_NODE) {
-        if (children[i].className.indexOf("togetherjs") != -1) {
+    return "#" + el.id;
+}
+if (el.tagName == "BODY") {
+  return "body";
+}
+if (el.tagName == "HEAD") {
+  return "head";
+}
+if (el === document) {
+  return "document";
+}
+var parent = el.parentNode;
+if ((! parent) || parent == el) {
+  console.warn("elementLocation(", el, ") has null parent");
+  throw new Error("No locatable parent found");
+}
+var parentLocation = elementLocation(parent);
+var children = parent.childNodes;
+var _len = children.length;
+var index = 0;
+for (var i=0; i<_len; i++) {
+  if (children[i] == el) {
+    break;
+}
+if (children[i].nodeType == document.ELEMENT_NODE) {
+    if (children[i].className.indexOf("togetherjs") != -1) {
           // Don't count our UI
           continue;
       }
@@ -5160,7 +5160,7 @@ function adjustDockSize(buttons) {
        var iface = $("#togetherjs-dock");
        var newHeight = iface.height() + (BUTTON_HEIGHT * buttons);
        assert(newHeight >= BUTTON_HEIGHT * 3, "Height went too low (", newHeight,
-         "), should never be less than 3 buttons high (", BUTTON_HEIGHT * 3, ")");
+           "), should never be less than 3 buttons high (", BUTTON_HEIGHT * 3, ")");
        iface.css({
           height: newHeight + "px"
       });
@@ -6883,6 +6883,8 @@ define('cursor',["jquery", "ui", "util", "session", "elementFinder", "tinycolor"
       var nameContainer = this.element.find(".togetherjs-cursor-container");
       assert(name.length);
       name.text(peer.name.split(' ').pop());
+      console.log("this is update peer the peer object is: ");
+      console.dir(peer);
       nameContainer.css({
         backgroundColor: peer.color,
         color: tinycolor.mostReadable(peer.color, FOREGROUND_COLORS)
@@ -7120,9 +7122,9 @@ function makeCursor(color) {
     context.beginPath();
     context.lineTo(0, CURSOR_HEIGHT/1.2);
     context.lineTo(Math.sin(CURSOR_ANGLE/2) * CURSOR_HEIGHT / 1.5,
-     Math.cos(CURSOR_ANGLE/2) * CURSOR_HEIGHT / 1.5);
+       Math.cos(CURSOR_ANGLE/2) * CURSOR_HEIGHT / 1.5);
     context.lineTo(Math.sin(CURSOR_ANGLE) * CURSOR_HEIGHT / 1.2,
-     Math.cos(CURSOR_ANGLE) * CURSOR_HEIGHT / 1.2);
+       Math.cos(CURSOR_ANGLE) * CURSOR_HEIGHT / 1.2);
     context.lineTo(0, 0);
     context.shadowColor = 'rgba(0,0,0,0.3)';
     context.shadowBlur = 2;
@@ -7478,7 +7480,7 @@ var Change = util.Class({
       this.known = known;
       this.outOfOrder = !! outOfOrder;
       assert(typeof version == "number" && typeof clientId == "string",
-       "Bad Change():", version, clientId);
+         "Bad Change():", version, clientId);
   },
 
   toString: function () {
@@ -8081,14 +8083,14 @@ classMethods: {
     assert(typeof newValue == "string");
     var commonStart = 0;
     while (commonStart < newValue.length &&
-     newValue.charAt(commonStart) == oldValue.charAt(commonStart)) {
+       newValue.charAt(commonStart) == oldValue.charAt(commonStart)) {
       commonStart++;
 }
 var commonEnd = 0;
 while (commonEnd < (newValue.length - commonStart) &&
- commonEnd < (oldValue.length - commonStart) &&
- newValue.charAt(newValue.length - commonEnd - 1) ==
- oldValue.charAt(oldValue.length - commonEnd - 1)) {
+   commonEnd < (oldValue.length - commonStart) &&
+   newValue.charAt(newValue.length - commonEnd - 1) ==
+   oldValue.charAt(oldValue.length - commonEnd - 1)) {
   commonEnd++;
 }
 var removed = oldValue.substr(commonStart, oldValue.length - commonStart - commonEnd);
@@ -8203,6 +8205,12 @@ function sendData(attrs) {
       return;
 }
 var location = elementFinder.elementLocation(el);
+if(el.classList.contains('ace_editor')) {
+        var regex = /(pro|con)_(claim|support)_editor_([0-9]+)_([0-9]*)_*/;///([A-Za-z_]+)([0-9]+)/; // /
+        var side = el.id.match(regex)[1], type =el.id.match(regex)[2], num1 = parseInt(el.id.match(regex)[3]), num2 = null;
+        if (el.id.match(regex[4])!=null) num2 = parseInt(el.id.match(regex)[4]);
+        alert(side+" side "+type+" " + num1 + num2);
+    }
 var msg = {
   type: "form-update",
   element: location,
@@ -8245,16 +8253,16 @@ var liveTrackers = [];
 TogetherJS.addTracker = function (TrackerClass, skipSetInit) {
     assert(typeof TrackerClass === "function", "You must pass in a class");
     assert(typeof TrackerClass.prototype.trackerName === "string",
-     "Needs a .prototype.trackerName string");
+       "Needs a .prototype.trackerName string");
     // Test for required instance methods.
     "destroy update init makeInit tracked".split(/ /).forEach(function(m) {
       assert(typeof TrackerClass.prototype[m] === "function",
-       "Missing required tracker method: "+m);
+         "Missing required tracker method: "+m);
   });
     // Test for required class methods.
     "scan tracked".split(/ /).forEach(function(m) {
       assert(typeof TrackerClass[m] === "function",
-       "Missing required tracker class method: "+m);
+         "Missing required tracker class method: "+m);
   });
     editTrackers[TrackerClass.prototype.trackerName] = TrackerClass;
     if (!skipSetInit) {
@@ -8745,8 +8753,8 @@ session.hub.on("form-update", function (msg) {
     history.setSelection(selection);
       // make a real TextReplace object.
       msg.replace.delta = ot.TextReplace(msg.replace.delta.start,
-       msg.replace.delta.del,
-       msg.replace.delta.text);
+         msg.replace.delta.del,
+         msg.replace.delta.text);
       // apply this change to the history
       var changed = history.commit(msg.replace);
       var trackerName = null;
@@ -8990,8 +8998,8 @@ session.on("close", function () {
 session.hub.on("hello", function (msg) {
     if (msg.sameUrl) {
       setTimeout(function () {
-       sendInit();
-       if (lastFocus) {
+         sendInit();
+         if (lastFocus) {
           session.send({type: "form-focus", element: elementFinder.elementLocation(lastFocus)});
       }
   });
@@ -9525,9 +9533,9 @@ function getUserMedia(options, success, failure) {
       console.error("Error in getUserMedia:", error);
   };
   (navigator.getUserMedia ||
-   navigator.mozGetUserMedia ||
-   navigator.webkitGetUserMedia ||
-   navigator.msGetUserMedia).call(navigator, options, success, failure);
+     navigator.mozGetUserMedia ||
+     navigator.webkitGetUserMedia ||
+     navigator.msGetUserMedia).call(navigator, options, success, failure);
 }
 
   /****************************************

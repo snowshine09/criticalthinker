@@ -69,11 +69,11 @@
 
     <% if(user.username == "jnk14" || user.username== "nzs162" || user.username=="euc18" || user.username=="jmc56" || user.username == "Diligent Dolphin") { %>
 
-      <div class="item right">
-        <button class="ui olive toggle button usersetting">
-          <a href='/instructor'><i class="setting icon"></i>Topic Setting</a>
-        </button>
-      </div>
+    <div class="item right">
+      <button class="ui olive toggle button usersetting">
+        <a href='/instructor'><i class="setting icon"></i>Topic Setting</a>
+      </button>
+    </div>
 
     <% } %>
   </div>
@@ -94,21 +94,20 @@
 
   </div>
 
-  <div class="ui grid all-operator">
+  <div class="ui  padded page grid all-operator">
     <div class='row'>
       <div id='expandAllButton' class='ui large button'> Expand All </div>
       <div id='callapseAllButton' class='ui large button'> Collapse All </div>
     </div>
-    <div class='row'>
-      <div class="one wide column"></div>
-      <div class="six wide column">
+    <div class='three column centered row'>
+      <div class="seven wide column">
         <h1 class='ui header'>Pro</h1>
       </div>
-      <div class="five wide column">
+      <div class="seven wide column">
         <h1 class='ui header'>Con</h1>
       </div>
-      <div class="four wide column"></div>
-
+      <div class="two wide column">
+      </div>
     </div>
   </div>
 
@@ -119,7 +118,7 @@
 
   <div id="historycontext">
     <div class="ui center sticky chathistory-dock-right btn">
-      
+
       <span width="100%" height="100%" display="table"><i class="history icon"></i>Chat history</span>
     </div>
     <div class="chathistory-dock-right content" style = "display: none">
