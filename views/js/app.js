@@ -13,7 +13,7 @@ var proconModel = (function($) {
     dataReady = false;
 
   function fetchData(secondcallback, callback) {
-    if ($(".topic-bar span").length == 0) {
+    if ($(".topic-bar span").text().length == 0) {
       temp = "The right to be forgotten"; //default
     } else {
       temp = $(".topic-bar span").text();
