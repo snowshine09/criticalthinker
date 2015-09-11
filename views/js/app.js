@@ -23,7 +23,7 @@ var proconModel = (function($) {
       value: temp,
       writable: true
     });
-    $(".topic-bar span").val(GLOBAL.topic);
+    $(".topic-bar span").val(temp);
     callback(secondcallback);
   }
 
