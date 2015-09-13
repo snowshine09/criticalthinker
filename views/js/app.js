@@ -705,7 +705,8 @@ var proconView = (function($) {
               topic: GLOBAL.topic,
               content: {
                 argumentType: argumentType,
-                update: updatedContent
+                update: updatedContent,
+                element: sender.container.id
               }
             },
             method: "PUT"
