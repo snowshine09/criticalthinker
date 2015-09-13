@@ -558,27 +558,24 @@ var proconView = (function($) {
       var intro = introJs();
       intro.setOptions({
         steps: [{
-          intro: "Welcome to Critical Thinker! Let's first take a brief look at how to use the tool."
-        }, {
-          element: document.querySelector('.welcome'),
-          intro: "After you log in, the user ID is only visible to you, and your group member would see your system-generated nickname"
+          intro: "This is a tour that guides you on how and why to use the system: this is a collaborative learning system that allows for concurrent editing (each input box you see in the screen is editable), instant chat and chat history review"
         }, {
           element: document.querySelectorAll('.proconpair')[0],
           intro: "The PRO and CON arguments are structured in pair correspondingly"
         }, {
           element: document.querySelectorAll('.rightpadding.two')[0],
-          intro: "You can add or delete with the plus or cross button"
+          intro: "You can add or delete Claim with the plus or cross button"
         }, {
           element: document.querySelectorAll('.pro.seven.column')[0],
           intro: 'The left panel is where PRO arguments are put, whereas the right panel is the place for CON arguments',
           position: 'left'
         }, {
           element: document.querySelectorAll('.editor.ace_editor')[0],
-          intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the black add button",
+          intro: "You and your group member(s) will be collaboratively proposing claims, in areas like this above the Black Plus button",
           position: 'bottom'
         }, {
           element: document.querySelectorAll('.claimIcon.row')[0],
-          intro: 'Click the Black Plus Button to add more backings to back up the above proposition'
+          intro: 'Click the Black Plus Button to add more backings to support the above proposition'
         }, {
           element: document.querySelectorAll('.supporting')[0],
           intro: "These are where you write the backings with facts, evidences, reasoning or examples",
@@ -705,7 +702,8 @@ var proconView = (function($) {
               topic: GLOBAL.topic,
               content: {
                 argumentType: argumentType,
-                update: updatedContent
+                update: updatedContent,
+                element: sender.container.id
               }
             },
             method: "PUT"
