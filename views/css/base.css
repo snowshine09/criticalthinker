@@ -23,6 +23,8 @@ div.claim.active.title {
 
 .ui.inverted.menu {
 	margin: 0px!important;
+	display: inline-block!important;
+	width:100%;
 }
 
 .topic-bar {

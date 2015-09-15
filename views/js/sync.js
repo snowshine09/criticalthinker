@@ -5,7 +5,6 @@
 		if (!msg.sameUrl) {
 			return;
 		}		
-	
 		if(msg.topic === GLOBAL.topic)proconController.addSupport(msg.side, msg.index);
 	
 	});
