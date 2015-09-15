@@ -5611,7 +5611,7 @@ urlNudge: function () {
     }
 
       // FIXME: turned off for now
-      if( numberOfUsers >= 4) {
+      if( numberOfUsers >= 7) {
         CollapsedDock();
     } else {
         // reset
