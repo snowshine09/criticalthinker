@@ -1,7 +1,7 @@
-var ProCon = require('../app/models/procon.js'),
-  Chatmsg = require('../app/models/chatmsg.js'),
-  UserAct = require('../app/models/useract.js'),
-  User = require('./models/user.js');
+var ProCon = require('../app/models/procon.js'), 
+Chatmsg = require('../app/models/chatmsg.js'), 
+UserAct = require('../app/models/useract.js'),
+User = require('./models/user.js');
 
 var timeSince = function(date) {
   if (typeof date !== 'object') {
