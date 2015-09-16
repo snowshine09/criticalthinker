@@ -30,7 +30,7 @@ var proconModel = (function($) {
 
     function fetchDatawTopic(callback) {
         $.ajax({
-                url: "/all_procons/" + GLOBAL.topic,
+                url: "/all_procons/" + GLOBAL.topic.replace(/\//,'%2F'),
                 method: "GET"
             })
             .done(function(data) {
@@ -563,6 +563,9 @@ var proconView = (function($) {
                     element: document.querySelectorAll('.proconpair')[0],
                     intro: "The PRO and CON arguments are structured in pair correspondingly"
                 }, {
+                    element: document.querySelectorAll('.dropdown.labeled.search')[0],
+                    intro: "Select the topic you want to go here, or it will be loaded with the last topic you were arguing about"
+                }, {
                     element: document.querySelectorAll('.rightpadding.two')[0],
                     intro: "You can add or delete Claim with the plus or cross button"
                 }, {
@@ -980,16 +983,16 @@ var proconView = (function($) {
         if (typeof GLOBAL.savedData != undefined && GLOBAL.savedData) {
             for (i = 0; i < GLOBAL.savedData.pro.length; i += 1) {
                 var row = document.createElement('div');
-                row.className = 'proconpair three column centered row';
+                row.className = 'proconpair three column centered row' + ' procon-'+(i+1).toString();
                 var rightpadding = document.createElement('div');
                 rightpadding.className = 'rightpadding two wide column';
                 var pro = document.createElement('div');
-                pro.className = 'pro seven wide column';
+                pro.className = 'pro seven wide column' + ' pro-'+(i+1).toString();
 
                 pro.appendChild(createClaim('pro', i, GLOBAL.savedData.pro[i]));
 
                 var con = document.createElement('div');
-                con.className = 'con seven wide column';
+                con.className = 'con seven wide column' + ' con-'+(i+1).toString();
                 con.appendChild(createClaim('con', i, GLOBAL.savedData.con[i]));
 
                 var icons = createIconsforProConPair(i);
@@ -1016,6 +1019,7 @@ var proconController = (function($) {
     function addProCon() {
         proconModel.addProCon();
         initializeView();
+        $('html,body').animate({scrollTop: jQuery(".procon-"+GLOBAL.savedData.pro.length.toString()).offset().top},'slow');
         TogetherJS.reinitialize();
 
     }
