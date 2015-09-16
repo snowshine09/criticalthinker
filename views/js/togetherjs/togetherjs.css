@@ -447,7 +447,7 @@ input.togetherjs-upload-avatar {
 .togetherjs .togetherjs-subtitle {
   background: #0195DD;
   width: 280px;
-  height: 17px;
+  /*height: 17px;*/
   border-bottom: 1px solid #0071A7;
   color: rgba(255, 255, 255, 0.5);
   font-size: 12px;

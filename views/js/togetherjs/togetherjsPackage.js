@@ -286,8 +286,8 @@ var requirejs, require, define;
                     //CommonJS module spec 1.1
                     cjsModule = args[i] = handlers.module(name);
                 } else if (hasProp(defined, depName) ||
-                 hasProp(waiting, depName) ||
-                 hasProp(defining, depName)) {
+                   hasProp(waiting, depName) ||
+                   hasProp(defining, depName)) {
                     args[i] = callDep(depName);
                 } else if (map.p) {
                     map.p.load(map.n, makeRequire(relName, true), makeLoad(depName), {});
