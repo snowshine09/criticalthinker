@@ -36,6 +36,7 @@ var proconModel = (function($) {
             .done(function(data) {
                 dataReady = true;
                 proconData = data;
+                GLOBAL.self = true;
                 GLOBAL.savedData = data;
                 GLOBAL.helloLogin = true;
                 console.log(proconData);
@@ -121,7 +122,7 @@ var proconModel = (function($) {
     }
 
     function updateServerProCon() {
-        var temp = "/all_procons/" + GLOBAL.topic;
+        var temp = "/all_procons/" + GLOBAL.topic.replace(/\//,'%2F');
         console.log("entering ajax!! The current ProConData is " + proconData);
         $.ajax({
                 url: temp,
@@ -1019,7 +1020,7 @@ var proconController = (function($) {
     function addProCon() {
         proconModel.addProCon();
         initializeView();
-        $('html,body').animate({scrollTop: jQuery(".procon-"+GLOBAL.savedData.pro.length.toString()).offset().top},'slow');
+        if(GLOBAL.self) $('html,body').animate({scrollTop: jQuery(".procon-"+GLOBAL.savedData.pro.length.toString()).offset().top},'slow');
         TogetherJS.reinitialize();
 
     }
