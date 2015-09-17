@@ -4,7 +4,7 @@
 	TogetherJS.hub.on('addSupporting', function(msg){
 		if (!msg.sameUrl) {
 			return;
-		}		
+		}
 		if(msg.topic === GLOBAL.topic)proconController.addSupport(msg.side, msg.index);
 	
 	});
@@ -20,7 +20,7 @@
 		if (!msg.sameUrl) {
 			return;
 		}		
-
+		GLOBAL.self = false;
 		if(msg.topic === GLOBAL.topic)proconController.addProCon();
 	
 	});	
