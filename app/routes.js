@@ -1,7 +1,8 @@
 var ProCon = require('../app/models/procon.js'), 
 Chatmsg = require('../app/models/chatmsg.js'), 
 UserAct = require('../app/models/useract.js'),
-User = require('./models/user.js');
+User = require('./models/user.js'),
+Argv = require('./models/argv.js');
 
 var timeSince = function(date) {
   if (typeof date !== 'object') {
@@ -489,6 +490,25 @@ module.exports = function(app, passport) {
     });
 
   });
+
+  app.put('/SubmitVersion', function(req, res) {
+      var newArgv = new Argv({
+          topic: req.body.topic,
+          content: req.body.content,
+          username: req.user.toObject().username,
+      });
+      newArgv.save(function(err, nact) {
+          if (err) {
+              console.err(err);
+              console.log("err occurs when saving new Arg record");
+          }
+          console.log("new Arg record added");
+      });
+      res.send(200, {
+      "Succuess": "Submitted"
+    });
+  });
+
 
   app.get('/logout', function(req, res) {
     console.log('log out');

@@ -30,7 +30,7 @@ var proconModel = (function($) {
 
     function fetchDatawTopic(callback) {
         $.ajax({
-                url: "/all_procons/" + GLOBAL.topic.replace(/\//,'%2F'),
+                url: "/all_procons/" + GLOBAL.topic.replace(/\//, '%2F'),
                 method: "GET"
             })
             .done(function(data) {
@@ -122,7 +122,7 @@ var proconModel = (function($) {
     }
 
     function updateServerProCon() {
-        var temp = "/all_procons/" + GLOBAL.topic.replace(/\//,'%2F');
+        var temp = "/all_procons/" + GLOBAL.topic.replace(/\//, '%2F');
         console.log("entering ajax!! The current ProConData is " + proconData);
         $.ajax({
                 url: temp,
@@ -168,6 +168,7 @@ var proconView = (function($) {
     function removeEvents() {
         $('#callapseAllButton').unbind('click');
         $('#expandAllButton').unbind('click');
+        $('#submitVersion').unbind('click');
         $('.dropdown.icon').unbind('click');
         $('.claim.title').unbind('click');
         $('span.chathistory-dock-right').unbind('click');
@@ -211,6 +212,38 @@ var proconView = (function($) {
                 });
         });
 
+        $('#submitVersion').click(function(e) {
+            e.stopPropagation();
+            $.ajax({
+                    url: "/SubmitVersion",
+                    data: {
+                        content: {
+                            pro: GLOBAL.savedData.pro,
+                            con: GLOBAL.savedData.con
+                        },
+                        topic: GLOBAL.topic
+                    },
+                    method: "PUT"
+                })
+                .done(function(data) {
+                    console.log('Arguments saved');
+                    $('.cookie.nag').nag('clear');
+                    $('.cookie.nag').nag('show');
+                    $('.cookie.nag').delay('1000').fadeOut();
+
+                });
+            $.ajax({
+                    url: "/actsave",
+                    data: {
+                        type: "Submit a new version",
+                        topic: GLOBAL.topic
+                    },
+                    method: "PUT"
+                })
+                .done(function(data) {
+                    console.log('act saved');
+                });
+        });
         $('.pro .dropdown.icon').click(function(e) {
 
             e.stopPropagation(); // Preventing icon click, which will mess up the interface.
@@ -501,48 +534,49 @@ var proconView = (function($) {
                     console.log("userleft, byebye");
                 });
         };
-
-        $.ajax({
-                url: "/getusername",
-                method: "GET",
-                error: function(xhr, desc, err) {
-                    console.log(xhr);
-                    console.log("Details0: " + desc + "\nError:" + err);
-                },
-            })
-            .done(function(data) {
-                console.log('username is ' + data.username);
-                GLOBAL.username = data.username;
-                GLOBAL.avatarname = data.avatarname;
-                GLOBAL.topics = data.topics;
-                GLOBAL.title = data.title;
-            });
-        $.ajax({
-                url: "/checkExistAvatar",
-                method: "GET",
-                error: function(xhr, desc, err) {
-                    console.log(xhr);
-                    console.log("Details0: " + desc + "\nError:" + err);
-                },
-            })
-            .done(function(data) {
-                if (!data.resp.exist) {
-                    $.ajax({
-                            url: "/SaveScreenName/" + TogetherJS.config.get("getUserName"),
-                            method: "GET",
-                            error: function(xhr, desc, err) {
-                                console.log(xhr);
-                                console.log("Details0: " + desc + "\nError:" + err);
-                            },
-                        })
-                        .done(function(data) {
-                            console.log('save screenname success!' + data);
-                            console.dir(data);
-                        });
-                } else {
-                    TogetherJS.config("getUserName", data.resp.avatarname);
-                }
-            });
+        if (GLOBAL['username'] == undefined) {
+            $.ajax({
+                    url: "/getusername",
+                    method: "GET",
+                    error: function(xhr, desc, err) {
+                        console.log(xhr);
+                        console.log("Details0: " + desc + "\nError:" + err);
+                    },
+                })
+                .done(function(data) {
+                    console.log('username is ' + data.username);
+                    GLOBAL.username = data.username;
+                    GLOBAL.avatarname = data.avatarname;
+                    GLOBAL.topics = data.topics;
+                    GLOBAL.title = data.title;
+                });
+            $.ajax({
+                    url: "/checkExistAvatar",
+                    method: "GET",
+                    error: function(xhr, desc, err) {
+                        console.log(xhr);
+                        console.log("Details0: " + desc + "\nError:" + err);
+                    },
+                })
+                .done(function(data) {
+                    if (!data.resp.exist) {
+                        $.ajax({
+                                url: "/SaveScreenName/" + TogetherJS.config.get("getUserName"),
+                                method: "GET",
+                                error: function(xhr, desc, err) {
+                                    console.log(xhr);
+                                    console.log("Details0: " + desc + "\nError:" + err);
+                                },
+                            })
+                            .done(function(data) {
+                                console.log('save screenname success!' + data);
+                                console.dir(data);
+                            });
+                    } else {
+                        TogetherJS.config("getUserName", data.resp.avatarname);
+                    }
+                });
+        }
 
         document.getElementsByClassName('helptour')[0].addEventListener('click', function(e) {
             $.ajax({
@@ -984,16 +1018,16 @@ var proconView = (function($) {
         if (typeof GLOBAL.savedData != undefined && GLOBAL.savedData) {
             for (i = 0; i < GLOBAL.savedData.pro.length; i += 1) {
                 var row = document.createElement('div');
-                row.className = 'proconpair three column centered row' + ' procon-'+(i+1).toString();
+                row.className = 'proconpair three column centered row' + ' procon-' + (i + 1).toString();
                 var rightpadding = document.createElement('div');
                 rightpadding.className = 'rightpadding two wide column';
                 var pro = document.createElement('div');
-                pro.className = 'pro seven wide column' + ' pro-'+(i+1).toString();
+                pro.className = 'pro seven wide column' + ' pro-' + (i + 1).toString();
 
                 pro.appendChild(createClaim('pro', i, GLOBAL.savedData.pro[i]));
 
                 var con = document.createElement('div');
-                con.className = 'con seven wide column' + ' con-'+(i+1).toString();
+                con.className = 'con seven wide column' + ' con-' + (i + 1).toString();
                 con.appendChild(createClaim('con', i, GLOBAL.savedData.con[i]));
 
                 var icons = createIconsforProConPair(i);
@@ -1020,7 +1054,9 @@ var proconController = (function($) {
     function addProCon() {
         proconModel.addProCon();
         initializeView();
-        if(GLOBAL.self) $('html,body').animate({scrollTop: jQuery(".procon-"+GLOBAL.savedData.pro.length.toString()).offset().top},'slow');
+        if (GLOBAL.self) $('html,body').animate({
+            scrollTop: jQuery(".procon-" + GLOBAL.savedData.pro.length.toString()).offset().top
+        }, 'slow');
         TogetherJS.reinitialize();
 
     }
