@@ -624,7 +624,7 @@ app.get('/logview', function(req, res) {
 });
 
 app.get('/visdata', function(req, res){
-  var start = req.query.start || new Date("2015-08-05T12:00:00"), end = req.query.end || new Date(),  interact = req.query.interact, users = req.query.users, vis_type = req.query.vis;
+  var start = req.query.start || new Date("2015-08-05T12:00:00"), end = req.query.end || new Date(),  interact = req.query.interact || "autosave user input", users = req.query.users, vis_type = req.query.vis;
   var type = interact || "autosave user input";
   console.log('start date specified is ' + req.query.start);
   User.find({}).exec(function(err, all_users){

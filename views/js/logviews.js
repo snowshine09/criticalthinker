@@ -35,6 +35,7 @@ $(document).ready(function(){
                     console.log('act saved');
                 });
             }
+            else query.topic = undefined;
         }
     });
     $('.ui.dropdown.interaction')
@@ -56,6 +57,7 @@ $(document).ready(function(){
                     console.log('act saved');
                 });
             }
+            else query.interaction = 'autosave user input';
         }
     });
 
@@ -66,6 +68,7 @@ $(document).ready(function(){
             if(value) {
                 query.names = value.split(',');
             }
+            else query.names = undefined;
         }
     });
     $("#themeriver-generate").click(function(e) {
