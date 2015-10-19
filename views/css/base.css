@@ -289,3 +289,12 @@ div.message-timestamp > i.icon {
 	background-color: #dbedfe;
 	background-image: -webkit-gradient(linear, center bottom, center top, from(#c7defe), to(#e7f1fe)), -webkit-linear-gradient(bottom, #c7defe, #e7f1fe);
 }*/
+
+
+.ui.bc.dropdown {
+	display: inline-block;
+	width:40%!important;
+}
+.ui.timerange {
+	padding-top: 5px;
+}
