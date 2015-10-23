@@ -168,7 +168,7 @@ var proconView = (function($) {
     function removeEvents() {
         $('#callapseAllButton').unbind('click');
         $('#expandAllButton').unbind('click');
-        $('#submitVersion').unbind('click');
+        // $('#submitVersion').unbind('click');
         $('.dropdown.icon').unbind('click');
         $('.claim.title').unbind('click');
         $('span.chathistory-dock-right').unbind('click');
@@ -212,38 +212,38 @@ var proconView = (function($) {
                 });
         });
 
-        $('#submitVersion').click(function(e) {
-            e.stopPropagation();
-            $.ajax({
-                    url: "/SubmitVersion",
-                    data: {
-                        content: {
-                            pro: GLOBAL.savedData.pro,
-                            con: GLOBAL.savedData.con
-                        },
-                        topic: GLOBAL.topic
-                    },
-                    method: "PUT"
-                })
-                .done(function(data) {
-                    console.log('Arguments saved');
-                    $('.cookie.nag').nag('clear');
-                    $('.cookie.nag').nag('show');
-                    $('.cookie.nag').delay('1000').fadeOut();
+        // $('#submitVersion').click(function(e) {
+        //     e.stopPropagation();
+        //     $.ajax({
+        //             url: "/SubmitVersion",
+        //             data: {
+        //                 content: {
+        //                     pro: GLOBAL.savedData.pro,
+        //                     con: GLOBAL.savedData.con
+        //                 },
+        //                 topic: GLOBAL.topic
+        //             },
+        //             method: "PUT"
+        //         })
+        //         .done(function(data) {
+        //             console.log('Arguments saved');
+        //             $('.cookie.nag').nag('clear');
+        //             $('.cookie.nag').nag('show');
+        //             $('.cookie.nag').delay('1000').fadeOut();
 
-                });
-            $.ajax({
-                    url: "/actsave",
-                    data: {
-                        type: "Submit a new version",
-                        topic: GLOBAL.topic
-                    },
-                    method: "PUT"
-                })
-                .done(function(data) {
-                    console.log('act saved');
-                });
-        });
+        //         });
+        //     $.ajax({
+        //             url: "/actsave",
+        //             data: {
+        //                 type: "Submit a new version",
+        //                 topic: GLOBAL.topic
+        //             },
+        //             method: "PUT"
+        //         })
+        //         .done(function(data) {
+        //             console.log('act saved');
+        //         });
+        // });
         $('.pro .dropdown.icon').click(function(e) {
 
             e.stopPropagation(); // Preventing icon click, which will mess up the interface.
@@ -847,6 +847,7 @@ var proconView = (function($) {
         return row;
     }
 
+
     function createIconsforProConPair(idx) {
         var icons = [];
         var removeIcon = document.createElement('i');
@@ -909,6 +910,27 @@ var proconView = (function($) {
         $(addProConIcon).popup({
             hoverable: true
         });
+
+        // var vishistory =  document.createElement('i');
+        // vishistory.className = 'circular teal users icon';
+        // vishistory.setAttribute('data-content', 'View editing history');
+        // $vishistory.click(function(e){
+        //   e.stopPropagation();
+        //   $.ajax({
+        //     url: '/editinghistory',
+        //     data: {
+        //       idx: idx,
+        //       topic: GLOBAL.topic
+        //     },
+        //     method: "GET"
+        //   })
+        //   .done(function(data){
+
+        //   })
+        // });_
+        // var commentbtn = document.createElement('i');
+        // commentbtn.className = 'comments outline icon';
+      
         icons.push(addProConIcon);
         icons.push(removeIcon);
         return icons;
@@ -1021,6 +1043,8 @@ var proconView = (function($) {
                 row.className = 'proconpair three column centered row' + ' procon-' + (i + 1).toString();
                 var rightpadding = document.createElement('div');
                 rightpadding.className = 'rightpadding two wide column';
+
+                // var lefticon = createVisIconsforProConPair(i); //for editing awareness. participation awareness
                 var pro = document.createElement('div');
                 pro.className = 'pro seven wide column' + ' pro-' + (i + 1).toString();
 
