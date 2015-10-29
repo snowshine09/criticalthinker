@@ -1,8 +1,9 @@
 var ProCon = require('../app/models/procon.js'), 
 Chatmsg = require('../app/models/chatmsg.js'), 
 UserAct = require('../app/models/useract.js'),
-User = require('./models/user.js');
-var weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu','Fri', 'Sat'];
+User = require('./models/user.js'),
+Argv = require('./models/argv.js');
+
 var timeSince = function(date) {
   if (typeof date !== 'object') {
     date = new Date(date);
@@ -622,6 +623,25 @@ app.get('/logview', function(req, res) {
     });
   });
 });
+
+app.put('/SubmitVersion', function(req, res) {
+      var newArgv = new Argv({
+          topic: req.body.topic,
+          content: req.body.content,
+          username: req.user.toObject().username,
+      });
+      newArgv.save(function(err, nact) {
+          if (err) {
+              console.err(err);
+              console.log("err occurs when saving new Arg record");
+          }
+          console.log("new Arg record added");
+      });
+      res.send(200, {
+      "Succuess": "Submitted"
+    });
+  });
+
 
 app.get('/visdata', function(req, res){
   var start = req.query.start || new Date("2015-08-05T12:00:00"), end = req.query.end || new Date(),  interact = req.query.interact || "autosave user input", users = req.query.users, vis_type = req.query.vis;

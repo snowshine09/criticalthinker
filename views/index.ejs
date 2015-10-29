@@ -18,9 +18,7 @@
     <!-- <div class="item">
       <a href='/changetemplate' class='ui blue label'>Change Template</a>
     </div> -->
-    <div class="item">
-      <a href='/logview' class='ui blue label'>Student Activities</a>
-    </div>
+    
     <div class="item right">
       <a href='/logout' class='ui red label'>Logout</a>
     </div>
@@ -29,7 +27,9 @@
     </div>
 
     <% if(user.username == "jnk14" || user.username== "nzs162" || user.username=="euc18" || user.username=="jmc56" || user.username == "Diligent Dolphin") { %>
-
+    <div class="item right">
+      <a href='/logview' class='ui blue label'>Student Activities</a>
+    </div>
       <div class="item right">
         <button class="ui olive toggle button usersetting">
           <a href='/instructor'><i class="setting icon"></i>Topic Setting</a>
@@ -59,7 +59,10 @@
     <div class='row'>
       <div id='expandAllButton' class='ui large button'> Expand All </div>
       <div id='callapseAllButton' class='ui large button'> Collapse All </div>
+      <!-- <div id='submitVersion' class='ui large button'> Submit </div> -->
     </div>
+    <div class="ui inline cookie nag"><span class="title ">Current Arguments Submitted! </span><i class="close icon"></i></div>
+    <!-- <div class="ui transition saved prompt visible"> </div> -->
     <div class='row'>
       
       <div class="seven wide column">
@@ -89,14 +92,7 @@
 
   </div>
   <div class='ui grid'>
-  <!-- <div class="six wide column"></div>
-    <div class="six wide column"></div>
-    <div class="four wide column">
-      <div class="ui rail">
-        <div id="chathistory-btn" class="ui sticky"><i class="history icon"></i>Chat history</div>
-        <div class="chatcontent ui sticky">Content</div>
-      </div>
-    </div> -->
+
     <div class="five wide column">
 
     </div>
