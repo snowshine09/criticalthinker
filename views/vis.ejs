@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="https://oss.maxcdn.com/semantic-ui/2.1.4/semantic.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/base.css" />
+  <title>Critical Thinker Student Activities</title>
+</head>
+<body>
+<div class="ui inline inverted menu ct">
+    <div class="item welcome">
+      Welcome to Critical Thinker<string> <%= user ? ', '+user.avatarname : ' ' %> </string>!
+    </div>
+
+    <div class="item right">
+      <button class="ui olive button usersetting"><a href='/home'><i class="home icon"></i>Home</a></button>
+    </div>
+  </div>
+  <div class='ui segment topic-bar'>
+    <div class="ui teal ribbon label">
+      Topics:
+    </div>
+    <div class="ui floating dropdown labeled search icon button topic">
+      <i class="tasks icon"></i>
+      <span class="text"><%= user.lasttopic %></span>
+      <div class="topic menu">
+        <% for(var i=0; i<topics.length; i++) {%>
+        <div class = "topic item"><%= topics[i] %></div>
+        <% } %>
+
+      </div>
+    </div>
+    <div class="ui floating dropdown labeled search icon button interaction">
+      <i class="tasks icon"></i>
+      <span class="text">Select type for barchart</span>
+      <div class="interact menu">
+        <div class="interact item">Autosave User Input</div>
+        <div class="interact item">User login</div>
+        <div class="interact item">Idle status</div>
+        <div class = "interact item">Cursor click</div>
+      </div>
+    </div>
+    <div class="ui timerange selection">
+      <label>Time range: from </label>
+      <div class="ui input">
+        <input id="vis-startdate" size="10" placeholder="Date of start"></input>
+      </div>
+      <!-- <label>at</label>
+      <div class="ui input">
+        <input id="vis-starttime" size="10" placeholder="Time of start"></input>
+      </div> -->
+      <label>to</label>
+      <div class="ui input">
+        <input id="vis-enddate" size="10" placeholder="Date of end"></input>
+      </div>
+      <!-- <label>at</label>
+      <div class="ui input">
+        <input id="vis-endtime" size="10" placeholder="Time of end"></input><br>
+      </div> -->
+      <div class="ui fluid inline multiple search selection dropdown bc users">
+        <input type="hidden" name="username">
+        <i class="dropdown icon"></i>
+        <div class="default text">Select user(s)</div>
+        <div class="menu user">
+          <% for(var i=0; i<users.length; i++) {%>
+          <div class="item user"><%= users[i] %></div> 
+          <% } %>
+        </div>
+
+      </div>
+    </div>
+    
+    
+    <div class="ui button" id="themeriver-generate">Trend</div>
+    <div class="ui button" id="bc-generate">Bar</div>
+  </div>
+  
+  <div id="themeriver-window" class="chart themeriver">
+    <div id="themeriver-toolbar">
+
+
+
+    </div>
+    <div id="themeriver-tooltip" class="remove" style="position:absolute;visibility:hidden;"></div>
+    <div id="themeriver-area"></div>
+  </div>
+  <div id="bc-window" class="chart bar">
+    <div id="bc-toolbar">
+      <!-- <label>Time range: from </label>
+      <input id="bc-startdate" size="10" placeholder="Date of start"></input>
+      <label>at</label>
+      <input id="bc-starttime" size="8" placeholder="Time of start"></input>
+      <label>to</label>
+      <input id="bc-enddate" size="10" placeholder="Date of end"></input>
+      <label>at</label>
+      <input id="bc-endtime" size="8" placeholder="Time of end"></input><br> -->
+      
+      <!-- </select> -->
+      
+    </div>
+    <div id="bc-tooltip" class="remove" style="position:absolute;visibility:hidden;"></div>
+    <div id="bc-area" style="width:660px;height:460px"></div>
+
+  </div>
+</body>
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/drilldown.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript" language="javascript" src="./js/jquery.timepicker.min.js"></script>
+<script type="text/javascript" language="javascript" src="./js/bootstrap-datepicker.js"></script>
+<script type="text/javascript" language="javascript" src="./js/logviews.js"></script>
+<script type='text/javascript' src="https://oss.maxcdn.com/semantic-ui/2.1.4/semantic.min.js"></script>
+</html>

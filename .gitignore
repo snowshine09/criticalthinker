@@ -1,4 +1,7 @@
-# Logs
+#ignore the constant setting up files, such as ports, database names etc
+config/database.js
+server.js
+## Logs
 logs
 *.log
 .DS_Store
