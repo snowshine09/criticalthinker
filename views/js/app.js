@@ -748,6 +748,36 @@ var proconView = (function($) {
                     })
                     .done(function(data) {
                         console.log('act saved');
+                        $.ajax({
+                                url: "/SubmitVersion",
+                                data: {
+                                    content: {
+                                        pro: GLOBAL.savedData.pro,
+                                        con: GLOBAL.savedData.con
+                                    },
+                                    topic: GLOBAL.topic
+                                },
+                                method: "PUT"
+                            })
+                            .done(function(data) {
+                                console.log('Arguments saved');
+                                // $('.cookie.nag').nag('clear');
+                                // $('.cookie.nag').nag('show');
+                                // $('.cookie.nag').delay('1000').fadeOut();
+                                $('.ui.saving').removeClass('hidden').fadeIn('slow').delay(1000).fadeOut();
+
+                            });
+                        $.ajax({
+                                url: "/actsave",
+                                data: {
+                                    type: "Submit a new version",
+                                    topic: GLOBAL.topic
+                                },
+                                method: "PUT"
+                            })
+                            .done(function(data) {
+                                console.log('act saved');
+                            });
                     });
                 console.log('updatedContent=' + updatedContent);
                 console.log('sender.content=' + sender.getSession().getValue());
@@ -911,13 +941,30 @@ var proconView = (function($) {
             hoverable: true
         });
 
-        // var vishistory =  document.createElement('i');
-        // vishistory.className = 'circular teal users icon';
-        // vishistory.setAttribute('data-content', 'View editing history');
-        // $vishistory.click(function(e){
+        var vishistory =  document.createElement('i');
+        vishistory.className = 'circular teal users icon';
+        vishistory.setAttribute('data-content', 'View editing history');
+        vishistory.addEventListener('click', function(e){
+          e.stopPropagation();
+          $.ajax({
+            url: '/editinghistory',
+            data: {
+              idx: idx,
+              topic: GLOBAL.topic
+            },
+            method: "GET"
+          })
+          .done(function(data){
+            console.log("this is the editing records for the element "+data);
+          })
+        });
+        var commentbtn = document.createElement('i');
+        commentbtn.className = 'large comments outline icon';
+        commentbtn.setAttribute('data-content', 'Add comments on the pro con pair');
+        // $commentbtn.click(function(e){
         //   e.stopPropagation();
         //   $.ajax({
-        //     url: '/editinghistory',
+        //     url: '/addcomment',
         //     data: {
         //       idx: idx,
         //       topic: GLOBAL.topic
@@ -925,14 +972,13 @@ var proconView = (function($) {
         //     method: "GET"
         //   })
         //   .done(function(data){
-
+        //     console.log("this is the added comment for the element "+data);
         //   })
-        // });_
-        // var commentbtn = document.createElement('i');
-        // commentbtn.className = 'comments outline icon';
-      
+        // });
         icons.push(addProConIcon);
         icons.push(removeIcon);
+        icons.push(vishistory);
+        icons.push(commentbtn);
         return icons;
     }
 
@@ -1034,7 +1080,8 @@ var proconView = (function($) {
 
         var proandcon = $('#proandcon'),
             i;
-        proandcon.html('');
+        // proandcon.html('');
+        $('.proconpair').remove();
         console.log("this is procondataref in Render");
         console.dir(GLOBAL.savedData);
         if (typeof GLOBAL.savedData != undefined && GLOBAL.savedData) {
@@ -1061,6 +1108,7 @@ var proconView = (function($) {
 
                 for (var k = 0; k < icons.length; k++) {
                     rightpadding.appendChild(icons[k]);
+                    // if(k==1) rightpadding.appendChild(document.createElement('br'));
                 }
                 row.appendChild(rightpadding);
                 proandcon.append(row);

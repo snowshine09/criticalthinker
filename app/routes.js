@@ -74,6 +74,8 @@ module.exports = function(app, passport) {
     });
   });
 
+
+
   app.get('/all_procons/:topic', function(req, res) {
     var topic = req.params.topic;
     ProCon.findOne({
@@ -261,6 +263,16 @@ module.exports = function(app, passport) {
         chats: data
       });
     });
+  });
+
+
+  app.get('/editinghistory', function(req, res){
+    var idx = req.query.idx, topic = req.query.topic;
+    Useract.find('topic': topic).or([{
+      'content.element': 'pro_claim_editor_'+idx 
+    }, {'content.element': 'con_claim_editor_'+idx}]);
+  }).sort('-time').exec(function(err, data){
+    console.log("first data entry " + data[0]);
   });
 
 
