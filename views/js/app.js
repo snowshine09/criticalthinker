@@ -967,7 +967,7 @@ var proconView = (function($) {
                         vcol['y'] = 0;
                         vcol['color'] = randomColor();
                         for (var j = 0; j < puser[i].edits.length; j++) {
-                            vcol['y'] += puser[i].;
+                            vcol['y'] += puser[i];
                             vcol_user['data'].push([puser[i].values[j].time.substring(0, 10), puser[i].values[j].edit.length]);
                         }
                         vdata1.push(vcol);
