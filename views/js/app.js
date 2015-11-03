@@ -941,22 +941,41 @@ var proconView = (function($) {
             hoverable: true
         });
 
-        var vishistory =  document.createElement('i');
+        var vishistory = document.createElement('i');
         vishistory.className = 'circular teal users icon';
         vishistory.setAttribute('data-content', 'View editing history');
-        vishistory.addEventListener('click', function(e){
-          e.stopPropagation();
-          $.ajax({
-            url: '/editinghistory',
-            data: {
-              idx: idx,
-              topic: GLOBAL.topic
-            },
-            method: "GET"
-          })
-          .done(function(data){
-            console.log("this is the editing records for the element "+data);
-          })
+        vishistory.addEventListener('click', function(e) {
+            e.stopPropagation();
+            $.ajax({
+                    url: '/editinghistory',
+                    data: {
+                        idx: idx,
+                        topic: GLOBAL.topic
+                    },
+                    method: "GET"
+                })
+                .done(function(puser) {
+                    console.log("this is the editing records for the element " + puser);
+                    for (var i = 0; i < puser.length; i++) {
+                        var vcol = {},
+                            vcol_user = {};
+                        vcol['name'] = puser[i].username;
+                        vcol['drilldown'] = puser[i].username;
+                        vcol_user['name'] = puser[i].username;
+                        vcol_user['id'] = puser[i].username;
+                        vcol_user['data'] = [];
+                        vcol['y'] = 0;
+                        vcol['color'] = randomColor();
+                        for (var j = 0; j < puser[i].edits.length; j++) {
+                            vcol['y'] += puser[i].;
+                            vcol_user['data'].push([puser[i].values[j].time.substring(0, 10), puser[i].values[j].edit.length]);
+                        }
+                        vdata1.push(vcol);
+                        vdata2.push(vcol_user);
+                    }
+                    var hcpair = document.createElement('div');
+                    hcpair
+                })
         });
         var commentbtn = document.createElement('i');
         commentbtn.className = 'large comments outline icon';
@@ -1108,7 +1127,6 @@ var proconView = (function($) {
 
                 for (var k = 0; k < icons.length; k++) {
                     rightpadding.appendChild(icons[k]);
-                    // if(k==1) rightpadding.appendChild(document.createElement('br'));
                 }
                 row.appendChild(rightpadding);
                 proandcon.append(row);
