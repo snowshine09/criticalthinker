@@ -941,63 +941,10 @@ var proconView = (function($) {
             hoverable: true
         });
 
-        var vishistory = document.createElement('i');
-        vishistory.className = 'circular teal users icon';
-        vishistory.setAttribute('data-content', 'View editing history');
-        vishistory.addEventListener('click', function(e) {
-            e.stopPropagation();
-            $.ajax({
-                    url: '/editinghistory',
-                    data: {
-                        idx: idx,
-                        topic: GLOBAL.topic
-                    },
-                    method: "GET"
-                })
-                .done(function(puser) {
-                    console.log("this is the editing records for the element " + puser);
-                    for (var i = 0; i < puser.length; i++) {
-                        var vcol = {},
-                            vcol_user = {};
-                        vcol['name'] = puser[i].username;
-                        vcol['drilldown'] = puser[i].username;
-                        vcol_user['name'] = puser[i].username;
-                        vcol_user['id'] = puser[i].username;
-                        vcol_user['data'] = [];
-                        vcol['y'] = 0;
-                        vcol['color'] = randomColor();
-                        for (var j = 0; j < puser[i].edits.length; j++) {
-                            vcol['y'] += puser[i];
-                            vcol_user['data'].push([puser[i].values[j].time.substring(0, 10), puser[i].values[j].edit.length]);
-                        }
-                        vdata1.push(vcol);
-                        vdata2.push(vcol_user);
-                    }
-                    var hcpair = document.createElement('div');
-                    hcpair
-                })
-        });
-        var commentbtn = document.createElement('i');
-        commentbtn.className = 'large comments outline icon';
-        commentbtn.setAttribute('data-content', 'Add comments on the pro con pair');
-        // $commentbtn.click(function(e){
-        //   e.stopPropagation();
-        //   $.ajax({
-        //     url: '/addcomment',
-        //     data: {
-        //       idx: idx,
-        //       topic: GLOBAL.topic
-        //     },
-        //     method: "GET"
-        //   })
-        //   .done(function(data){
-        //     console.log("this is the added comment for the element "+data);
-        //   })
-        // });
+    
         icons.push(addProConIcon);
         icons.push(removeIcon);
-        icons.push(vishistory);
-        icons.push(commentbtn);
+        
         return icons;
     }
 
@@ -1110,7 +1057,6 @@ var proconView = (function($) {
                 var rightpadding = document.createElement('div');
                 rightpadding.className = 'rightpadding two wide column';
 
-                // var lefticon = createVisIconsforProConPair(i); //for editing awareness. participation awareness
                 var pro = document.createElement('div');
                 pro.className = 'pro seven wide column' + ' pro-' + (i + 1).toString();
 
