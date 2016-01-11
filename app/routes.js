@@ -472,7 +472,7 @@ module.exports = function(app, passport) {
     //   });
     // })(req, res, next); 
     passport.authenticate('ldapauth', {
-      session: false
+      session: true
     }, function(err, user, info) {
       if (err) {
         return next(err);
