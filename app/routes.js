@@ -324,6 +324,10 @@ module.exports = function(app, passport) {
             support: [{
               content: ""
             }]
+          }],
+          synthesis: [{
+            content: "",
+            reference: []
           }]
         });
         newProCon.save(function(err, procon) {

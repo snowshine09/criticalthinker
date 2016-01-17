@@ -69,6 +69,14 @@ var proconModel = (function($) {
         return newEmptySupport;
     }
 
+    function createEmptySynthesis() {
+        var newEmptySynthesis = {
+            content: "",
+            reference: []
+        };
+        return newEmptySynthesis;
+    }
+
     function addProCon() {
         console.log('addProCon');
         proconData.pro.push(createEmptyClaim());
@@ -79,6 +87,12 @@ var proconModel = (function($) {
     function addSupport(side, claimIdx) {
         console.log('addSupport');
         proconData[side][claimIdx].support.push(createEmptySupport());
+        updateServerProCon();
+    }
+
+    function addSynthesis() {
+        console.log('updateSynthesis');
+        proconData['synthesis'].push(createEmptySynthesis());
         updateServerProCon();
     }
 
@@ -96,6 +110,24 @@ var proconModel = (function($) {
         updateServerProCon();
     }
 
+    function deleteSynthesis() {
+        console.log('delete Synthesis');
+        var emptylist = [];
+        for (var i = 0; i < proconData['synthesis'].length; i += 1) {
+            if (proconData['synthesis'][i].content.length == 0) emptylist.push(i);
+        }
+        // for (var i = 0; i < emptylist.length; i += 1) {
+        //     proconData['synthesis'].splice(i, 1);
+        // }
+        proconData['synthesis'] = $.grep(proconData['synthesis'], function(n, i) {
+            return $.inArray(i, emptylist) == -1;
+        });
+        if(proconData['synthesis'].length==0) {
+            proconData['synthesis'].push(createEmptySynthesis());
+        }
+        updateServerProCon();
+    }
+
     function updateProConAtIndex(side, claimIdx, content) {
         console.log('updateProConAtIndex');
         proconData[side][claimIdx].content = content;
@@ -105,6 +137,12 @@ var proconModel = (function($) {
     function updateSupportingAtIndex(side, claimIdx, index, content) {
         console.log('updateSupportingAtIndex');
         proconData[side][claimIdx].support[index].content = content;
+        updateServerProCon();
+    }
+
+    function updateSynthesisAtIndex(side, synIdx, content) {
+        console.log('updateSynthesisAtIndex');
+        proconData[side][synIdx].content = content;
         updateServerProCon();
     }
 
@@ -139,13 +177,16 @@ var proconModel = (function($) {
         init: init,
         addProCon: addProCon,
         addSupport: addSupport,
+        addSynthesis: addSynthesis,
         deleteProConAtIndex: deleteProConAtIndex,
         deleteSupport: deleteSupport,
+        deleteSynthesis: deleteSynthesis,
         getProConData: getProConData,
         getDataReady: getDataReady,
         resetDataReady: resetDataReady,
         updateProConAtIndex: updateProConAtIndex,
-        updateSupportingAtIndex: updateSupportingAtIndex
+        updateSupportingAtIndex: updateSupportingAtIndex,
+        updateSynthesisAtIndex: updateSynthesisAtIndex
     };
 }(jQuery));
 
@@ -175,6 +216,7 @@ var proconView = (function($) {
         $('.helptour').unbind('click');
         $('.usersetting').unbind('click');
         $(".chathistory-dock-right.btn").unbind('click');
+        $('.synthesis-add').unbind('click');
     }
 
     function registerEvents() {
@@ -709,7 +751,7 @@ var proconView = (function($) {
         // create Ace editor
         var editor = document.createElement('div');
         editor.className = "editor";
-        var postfix = argumentType === 'claim' ? '' : index;
+        var postfix = argumentType === 'support' ? index : '';
         editor.setAttribute("id", side + '_' + argumentType + "_editor_" + proconIndex + '_' + postfix);
         editor.appendChild(document.createTextNode(contentString));
         content.appendChild(editor);
@@ -731,7 +773,11 @@ var proconView = (function($) {
         });
 
         var autoSave = function(updatedContent, sender) {
-            var savedContent = argumentType === 'claim' ? GLOBAL.savedData[side][proconIndex].content : GLOBAL.savedData[side][proconIndex].support[index].content;
+            var savedContent;
+            if (argumentType === 'claim')
+                savedContent = GLOBAL.savedData[side][proconIndex].content;
+            else if (argumentType === 'support') savedContent = GLOBAL.savedData[side][proconIndex].support[index].content;
+            else savedContent = GLOBAL.savedData[side][proconIndex].content;
             if (GLOBAL.changed && updatedContent != savedContent) {
                 $.ajax({
                         url: "/actsave",
@@ -761,9 +807,6 @@ var proconView = (function($) {
                             })
                             .done(function(data) {
                                 console.log('Arguments saved');
-                                // $('.cookie.nag').nag('clear');
-                                // $('.cookie.nag').nag('show');
-                                // $('.cookie.nag').delay('1000').fadeOut();
                                 $('.ui.saving').removeClass('hidden').fadeIn('slow').delay(1000).fadeOut();
 
                             });
@@ -786,7 +829,7 @@ var proconView = (function($) {
                     proconController.updateProConAtIndex(side, proconIndex, updatedContent);
                 } else if (argumentType == 'support') {
                     proconController.updateSupportingAtIndex(side, proconIndex, index, updatedContent);
-                }
+                } else proconController.updateSynthesisAtIndex(side, proconIndex, updatedContent);
                 GLOBAL.changed = false;
                 console.log('autosaved: ' + updatedContent);
             }
@@ -885,7 +928,7 @@ var proconView = (function($) {
         removeIcon.setAttribute("data-content", "Remove this pair of claims.");
         removeIcon.addEventListener('click', function() {
             var proconPairRmBtns = $('.red.remove.circle.icon');
-            var proconRmIdx = proconPairRmBtns.index(event.target);
+
             $.ajax({
                     url: "/actsave",
                     data: {
@@ -918,7 +961,7 @@ var proconView = (function($) {
         addProConIcon.className = 'large teal plus circle icon';
         addProConIcon.setAttribute("data-content", "Add a new pair of claims.");
         addProConIcon.addEventListener('click', function(e) {
-
+            console.log("add new procon pair");
             e.stopPropagation();
             $.ajax({
                     url: "/actsave",
@@ -941,10 +984,10 @@ var proconView = (function($) {
             hoverable: true
         });
 
-    
+
         icons.push(addProConIcon);
         icons.push(removeIcon);
-        
+
         return icons;
     }
 
@@ -1041,17 +1084,37 @@ var proconView = (function($) {
         return claim;
     }
 
+    // Synthesized pieces
+    function createSynthesis(idx, SynString) {
+        var content = createContent(SynString, 'synthesis', idx, 0, 'synthesis');
+        // var container = document.createElement('div');
+        // container.className = 'synthesis row three column centered';
+        var divider = document.createElement('div');
+        divider.className = 'ui divider';
+        content.appendChild(divider);
+        var synthesis = document.createElement('div');
+        synthesis.className = 'synthesis synthesis-text synthesis-' + (idx).toString();
+        // synthesis.appendChild(container);
+        synthesis.appendChild(content);
+        return synthesis;
+    }
+
+    $("#testp").click(function(){
+        console.log("in");
+    })
 
     function render() {
+        console.log("render");
 
         var proandcon = $('#proandcon'),
             i;
         // proandcon.html('');
         $('.proconpair').remove();
+        $('.synthesis-text').remove();
         console.log("this is procondataref in Render");
         console.dir(GLOBAL.savedData);
         if (typeof GLOBAL.savedData != undefined && GLOBAL.savedData) {
-            for (i = 0; i < GLOBAL.savedData.pro.length; i += 1) {
+            for (i = 0; i < GLOBAL.savedData.pro.length; i += 1) { //fill in pro and con argumentation
                 var row = document.createElement('div');
                 row.className = 'proconpair three column centered row' + ' procon-' + (i + 1).toString();
                 var rightpadding = document.createElement('div');
@@ -1077,8 +1140,120 @@ var proconView = (function($) {
                 row.appendChild(rightpadding);
                 proandcon.append(row);
             }
+
+            synpane = $(".synthesis-pane");
+
+            var sadd = document.getElementsByClassName('synthesis-add')[0],
+                srem = document.getElementsByClassName('synthesis-remove')[0];
+
+            $(".ui.button.synthesis-add.large.teal.plus.circle.icon").click(function(){
+                console.log("in");
+            })
+            // $(sadd).unbind().on('click', 'i',function(e) {
+            //     console.log('clicked adding syn');
+            //     $.ajax({
+            //             url: "/actsave",
+            //             data: {
+            //                     type: "Add a new supporting for the synthesis",
+            //                     topic: GLOBAL.topic
+            //                 },
+
+            //             method: "PUT"
+            //         })
+            //         .done(function(data) {
+            //             console.log('act saved');
+            //         });
+            //     proconController.addSynthesis();
+            //     TogetherJS.send({
+            //         topic: GLOBAL.topic,
+            //         type: "addSynthesis",
+            //         index: idx,
+            //         side: side
+            //     });
+            // });
+
+            
+
+            // sadd.addEventListener('click', function(e) {
+            //     // e.stopPropagation();
+            //     console.log('12324');
+            //     // $.ajax({ad
+            //     //         url: "/actsave",
+            //     //         data: {
+            //     //             type: "Add a new supporting for the synthesis",
+            //     //             topic: GLOBAL.topic
+            //     //         },
+
+            //     //         method: "PUT"
+            //     //     })
+            //     //     .done(function(data) {
+            //     //         console.log('act saved');
+            //     //     });
+            //     // proconController.addSynthesis();
+            //     // TogetherJS.send({
+            //     //     topic: GLOBAL.topic,
+            //     //     type: "addSynthesis",
+            //     //     index: idx,
+            //     //     side: side
+            //     // });
+            //     return;
+            // }, false);
+
+            srem.addEventListener('click', function() {
+                console.log('clicked removing syn');
+                $.ajax({
+                        url: "/actsave",
+                        data: {
+                            type: "Remove a new supporting for the synthesis",
+                            topic: GLOBAL.topic
+                        },
+
+                        method: "PUT"
+                    })
+                    .done(function(data) {
+                        console.log('act saved');
+                    });
+                proconController.deleteSynthesis();
+                TogetherJS.send({
+                    topic: GLOBAL.topic,
+                    type: "deleteSynthesis"
+                });
+            }, false);
+
+            // $('.synthesis-delete').click(function() {
+            //     $.ajax({
+            //             url: "/actsave",
+            //             data: {
+            //                     type: "Deleting a synthesis",
+            //                     topic: GLOBAL.topic
+            //                 },
+
+            //             method: "PUT"
+            //         })
+            //         .done(function(data) {
+            //             console.log('act saved');
+            //         });
+            //     proconController.deleteSynthesis(idx);
+            //     TogetherJS.send({
+            //         topic: GLOBAL.topic,
+            //         type: "deleteSynthesis",
+            //         index: idx,
+            //         side: side
+            //     });
+            // });
+
+            for (i = 0; i < GLOBAL.savedData.synthesis.length; i += 1) {
+                synpane.append(createSynthesis(i, GLOBAL.savedData.synthesis[i].content));
+
+            }
         } else console.log("No records under this topic");
-    }
+
+
+        $("#synthesis-title").popup({
+            hoverable: true
+        });
+
+    } //end of render function
 
     return {
         init: init
@@ -1103,6 +1278,15 @@ var proconController = (function($) {
         TogetherJS.reinitialize();
     }
 
+    function addSynthesis() {
+        proconModel.addSynthesis();
+        initializeView();
+        if (GLOBAL.self) $('html,body').animate({
+            scrollTop: jQuery(".synthesis-" + GLOBAL.savedData.synthesis.length.toString()).offset().top
+        }, 'slow');
+        TogetherJS.reinitialize();
+    }
+
     function deleteProCon(idx) {
         proconModel.deleteProConAtIndex(idx);
         initializeView();
@@ -1113,12 +1297,21 @@ var proconController = (function($) {
         initializeView();
     }
 
+    function deleteSynthesis(side, synIdx) {
+        proconModel.deleteSynthesis();
+        initializeView();
+    }
+
     function updateProConAtIndex(side, claimIdx, content) {
         proconModel.updateProConAtIndex(side, claimIdx, content);
     }
 
     function updateSupportingAtIndex(side, claimIdx, index, content) {
         proconModel.updateSupportingAtIndex(side, claimIdx, index, content);
+    }
+
+    function updateSynthesisAtIndex(side, synIdx, content) {
+        proconModel.updateSynthesisAtIndex(side, synIdx, content);
     }
 
     function initializeView() {
@@ -1141,11 +1334,14 @@ var proconController = (function($) {
 
     return {
         addSupport: addSupport,
+        addSynthesis: addSynthesis,
         deleteProCon: deleteProCon,
         deleteSupport: deleteSupport,
         addProCon: addProCon,
+        deleteSynthesis: deleteSynthesis,
         updateProConAtIndex: updateProConAtIndex,
         updateSupportingAtIndex: updateSupportingAtIndex,
+        updateSynthesisAtIndex: updateSynthesisAtIndex,
         initializeView: initializeView
     };
 
