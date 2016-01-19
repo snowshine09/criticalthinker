@@ -91,7 +91,7 @@ var proconModel = (function($) {
     }
 
     function addSynthesis() {
-        console.log('updateSynthesis');
+        console.log('addSynthesis');
         proconData['synthesis'].push(createEmptySynthesis());
         updateServerProCon();
     }
@@ -122,7 +122,7 @@ var proconModel = (function($) {
         proconData['synthesis'] = $.grep(proconData['synthesis'], function(n, i) {
             return $.inArray(i, emptylist) == -1;
         });
-        if(proconData['synthesis'].length==0) {
+        if (proconData['synthesis'].length == 0) {
             proconData['synthesis'].push(createEmptySynthesis());
         }
         updateServerProCon();
@@ -216,8 +216,32 @@ var proconView = (function($) {
         $('.helptour').unbind('click');
         $('.usersetting').unbind('click');
         $(".chathistory-dock-right.btn").unbind('click');
-        $('.synthesis-add').unbind('click');
+        $('#synthesis-add').unbind('click');
+        $('#synthesis-remove').unbind('click');
     }
+
+    var saddlistener = function(e) {
+                // e.stopPropagation();
+                console.log('12324');
+                $.ajax({
+                        url: "/actsave",
+                        data: {
+                            type: "Add a new synthesis",
+                            topic: GLOBAL.topic
+                        },
+
+                        method: "PUT"
+                    })
+                    .done(function(data) {
+                        console.log('act saved');
+                    });
+                proconController.addSynthesis();
+                TogetherJS.send({
+                    topic: GLOBAL.topic,
+                    type: "addSynthesis"
+                });
+                // return;
+            };
 
     function registerEvents() {
 
@@ -254,38 +278,7 @@ var proconView = (function($) {
                 });
         });
 
-        // $('#submitVersion').click(function(e) {
-        //     e.stopPropagation();
-        //     $.ajax({
-        //             url: "/SubmitVersion",
-        //             data: {
-        //                 content: {
-        //                     pro: GLOBAL.savedData.pro,
-        //                     con: GLOBAL.savedData.con
-        //                 },
-        //                 topic: GLOBAL.topic
-        //             },
-        //             method: "PUT"
-        //         })
-        //         .done(function(data) {
-        //             console.log('Arguments saved');
-        //             $('.cookie.nag').nag('clear');
-        //             $('.cookie.nag').nag('show');
-        //             $('.cookie.nag').delay('1000').fadeOut();
-
-        //         });
-        //     $.ajax({
-        //             url: "/actsave",
-        //             data: {
-        //                 type: "Submit a new version",
-        //                 topic: GLOBAL.topic
-        //             },
-        //             method: "PUT"
-        //         })
-        //         .done(function(data) {
-        //             console.log('act saved');
-        //         });
-        // });
+        
         $('.pro .dropdown.icon').click(function(e) {
 
             e.stopPropagation(); // Preventing icon click, which will mess up the interface.
@@ -688,26 +681,7 @@ var proconView = (function($) {
             });
             intro.start();
         }, false);
-        // document.getElementsByClassName("usersetting")[0].addEventListener("click",function(e){
-        //   $.ajax({
-        //     url:"/instructor",
-        //     method: "GET"
-        //   })
-        //   .done(function(data){
-        //     console.log("enter instructor");
-        //   });
-        //   $.ajax({
-        //     url: "/actsave",
-        //     data: {
-        //       type: "Enter Topic Management",
-        //       topic: GLOBAL.topic
-        //     },
-        //     method: "PUT"
-        //   })
-        //   .done(function(data){
-        //     console.log('act saved');
-        //   });
-        // },false);
+
         $(".usersetting").click(function(e) {
             $.ajax({
                     url: "/instructor",
@@ -728,6 +702,38 @@ var proconView = (function($) {
                     console.log('act saved');
                 });
         })
+
+        //register clicks on synthesis board
+        var sadd = document.getElementById('synthesis-add'),
+                srem = document.getElementById('synthesis-remove');
+            // var el = document.getElementById('synthesis-add'),
+            //     elClone = el.cloneNode(true);
+
+            // el.parentNode.replaceChild(elClone, el);
+        
+            sadd.removeEventListener('click', saddlistener, true);
+            sadd.addEventListener('click', saddlistener, true);
+
+            srem.addEventListener('click', function() {
+                console.log('clicked removing syn');
+                $.ajax({
+                        url: "/actsave",
+                        data: {
+                            type: "Remove all empty syntheses",
+                            topic: GLOBAL.topic
+                        },
+
+                        method: "PUT"
+                    })
+                    .done(function(data) {
+                        console.log('act saved');
+                    });
+                proconController.deleteSynthesis();
+                TogetherJS.send({
+                    topic: GLOBAL.topic,
+                    type: "deleteSynthesis"
+                });
+            }, false);
 
 
     }
@@ -1099,9 +1105,7 @@ var proconView = (function($) {
         return synthesis;
     }
 
-    $("#testp").click(function(){
-        console.log("in");
-    })
+
 
     function render() {
         console.log("render");
@@ -1143,104 +1147,9 @@ var proconView = (function($) {
 
             synpane = $(".synthesis-pane");
 
-            var sadd = document.getElementsByClassName('synthesis-add')[0],
-                srem = document.getElementsByClassName('synthesis-remove')[0];
-
-            $(".ui.button.synthesis-add.large.teal.plus.circle.icon").click(function(){
-                console.log("in");
-            })
-            // $(sadd).unbind().on('click', 'i',function(e) {
-            //     console.log('clicked adding syn');
-            //     $.ajax({
-            //             url: "/actsave",
-            //             data: {
-            //                     type: "Add a new supporting for the synthesis",
-            //                     topic: GLOBAL.topic
-            //                 },
-
-            //             method: "PUT"
-            //         })
-            //         .done(function(data) {
-            //             console.log('act saved');
-            //         });
-            //     proconController.addSynthesis();
-            //     TogetherJS.send({
-            //         topic: GLOBAL.topic,
-            //         type: "addSynthesis",
-            //         index: idx,
-            //         side: side
-            //     });
-            // });
-
             
 
-            // sadd.addEventListener('click', function(e) {
-            //     // e.stopPropagation();
-            //     console.log('12324');
-            //     // $.ajax({ad
-            //     //         url: "/actsave",
-            //     //         data: {
-            //     //             type: "Add a new supporting for the synthesis",
-            //     //             topic: GLOBAL.topic
-            //     //         },
-
-            //     //         method: "PUT"
-            //     //     })
-            //     //     .done(function(data) {
-            //     //         console.log('act saved');
-            //     //     });
-            //     // proconController.addSynthesis();
-            //     // TogetherJS.send({
-            //     //     topic: GLOBAL.topic,
-            //     //     type: "addSynthesis",
-            //     //     index: idx,
-            //     //     side: side
-            //     // });
-            //     return;
-            // }, false);
-
-            srem.addEventListener('click', function() {
-                console.log('clicked removing syn');
-                $.ajax({
-                        url: "/actsave",
-                        data: {
-                            type: "Remove a new supporting for the synthesis",
-                            topic: GLOBAL.topic
-                        },
-
-                        method: "PUT"
-                    })
-                    .done(function(data) {
-                        console.log('act saved');
-                    });
-                proconController.deleteSynthesis();
-                TogetherJS.send({
-                    topic: GLOBAL.topic,
-                    type: "deleteSynthesis"
-                });
-            }, false);
-
-            // $('.synthesis-delete').click(function() {
-            //     $.ajax({
-            //             url: "/actsave",
-            //             data: {
-            //                     type: "Deleting a synthesis",
-            //                     topic: GLOBAL.topic
-            //                 },
-
-            //             method: "PUT"
-            //         })
-            //         .done(function(data) {
-            //             console.log('act saved');
-            //         });
-            //     proconController.deleteSynthesis(idx);
-            //     TogetherJS.send({
-            //         topic: GLOBAL.topic,
-            //         type: "deleteSynthesis",
-            //         index: idx,
-            //         side: side
-            //     });
-            // });
+            
 
             for (i = 0; i < GLOBAL.savedData.synthesis.length; i += 1) {
                 synpane.append(createSynthesis(i, GLOBAL.savedData.synthesis[i].content));
@@ -1282,7 +1191,7 @@ var proconController = (function($) {
         proconModel.addSynthesis();
         initializeView();
         if (GLOBAL.self) $('html,body').animate({
-            scrollTop: jQuery(".synthesis-" + GLOBAL.savedData.synthesis.length.toString()).offset().top
+            scrollTop: jQuery(".synthesis-" + (GLOBAL.savedData.synthesis.length-1).toString()).offset().top
         }, 'slow');
         TogetherJS.reinitialize();
     }
